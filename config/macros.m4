@@ -299,7 +299,8 @@ dnl		MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I${MRNET_HOME}/src/src -Dos_linux"
 dnl		AC_SUBST(MRNET_CXXFLAGS)
 dnl		dnl End hack
 
-	   	AC_ARG_WITH(lightweight,
+		AC_MSG_CHECKING([for lightweight libraries for the back-ends])
+		AC_ARG_WITH(lightweight,
 			AC_HELP_STRING(
 				[--with-lightweight],
 				[use the MRNet lightweight libraries for the back-ends]
@@ -307,6 +308,7 @@ dnl		dnl End hack
 			[light_libs="$withval"],
 			[light_libs="no"]
 		)
+		AC_MSG_RESULT([$light_libs])
 
 		dnl Check for MRNet header files.
 		CXXFLAGS="${CXXFLAGS} -I${MRNET_INCLUDES}/mrnet ${MRNET_CXXFLAGS}"
