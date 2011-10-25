@@ -46,6 +46,7 @@ extern "C" {
 # define STREAM                                      Stream_t
 # define STREAM_PTR                                  Stream_t*
 # define STREAM_is_Closed(stream)                    Stream_is_Closed(stream)
+# define STREAM_delete(stream)                       if (stream != NULL) delete_Stream_t(stream)
 # define PACKET                                      Packet_t
 # define PACKET_PTR                                  Packet_t*
 # define PACKET_new(p)                               PACKET_PTR p = (PACKET_PTR)malloc(sizeof(PACKET))
@@ -68,6 +69,7 @@ using namespace MRN;
 # define STREAM                                      Stream
 # define STREAM_PTR                                  Stream*
 # define STREAM_is_Closed(stream)                    stream->is_Closed()
+# define STREAM_delete(stream)                       if (stream != NULL) delete stream
 # define PACKET                                      Packet
 # define PACKET_PTR                                  PacketPtr
 # define PACKET_new(p)                               PACKET_PTR p

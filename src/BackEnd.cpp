@@ -238,12 +238,12 @@ void BackEnd::Shutdown()
    if( stControl != NULL )
    {
       while( ! STREAM_is_Closed(stControl) ) sleep(1);
-      delete stControl;
+      STREAM_delete(stControl);
    }
 
    /* FE delete of the net will cause us to exit, wait for it */
    NETWORK_waitfor_ShutDown(net);
-   delete net;
+   NETWORK_delete(net);
 
    sleep(3);
 }
