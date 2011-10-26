@@ -235,11 +235,15 @@ void BackEnd::Shutdown()
    MRN_STREAM_SEND(stControl, TAG_EXIT, "%d", 1);
 
    /* Wait for stControl to be closed */
+#if !defined(LIGHTWEIGHT)
+   /* In the lightweight library streams are freed during network shutdown, 
+      so there's no need to wait for the stream to be closed */
    if( stControl != NULL )
    {
       while( ! STREAM_is_Closed(stControl) ) sleep(1);
       STREAM_delete(stControl);
    }
+#endif
 
    /* FE delete of the net will cause us to exit, wait for it */
    NETWORK_waitfor_ShutDown(net);
