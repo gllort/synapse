@@ -59,6 +59,13 @@ extern "C" {
 # define NETWORK_get_LocalRank(net)                  Network_get_LocalRank(net)
 # define NETWORK_waitfor_ShutDown(net)               Network_waitfor_ShutDown(net)
 # define NETWORK_delete(net)                         if (net != NULL) delete_Network_t(net)
+# define NETWORK_get_NumBackEnds(net, num_be)                                  \
+{                                                                              \
+   vector_t *nodes = new_empty_vector_t();                                     \
+   NetworkTopology_get_BackEndNodes(Network_get_NetworkTopology(net), nodes);  \
+   num_be = vector->size;                                                      \
+   delete_vector_t(nodes);                                                     \
+}
 #else
 # include <mrnet/MRNet.h>
 using namespace MRN;
@@ -82,6 +89,12 @@ using namespace MRN;
 # define NETWORK_get_LocalRank(net)                  net->get_LocalRank()
 # define NETWORK_waitfor_ShutDown(net)               net->waitfor_ShutDown()
 # define NETWORK_delete(net)                         if (net != NULL) delete net
+# define NETWORK_get_NumBackEnds(net, num_be)           \
+{                                                       \
+   std::set< NetworkTopology::Node * > nodes;           \
+   net->get_NetworkTopology()->get_BackEndNodes(nodes); \
+   num_be = nodes.size();                               \
+}
 /* Sends a message to the subset of BEs in the stream specified in be_list */
 # define MRN_STREAM_SEND_P2P(stream, be_list, tag, format, args...)    \
 {                                                                      \

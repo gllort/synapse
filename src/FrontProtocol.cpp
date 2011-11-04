@@ -32,9 +32,9 @@ using namespace std;
  * then publishes all the streams that are registered by the user.
  * @param fe The FrontEnd object
  */
-void FrontProtocol::Init(FrontEnd *fe)
+void FrontProtocol::Init(MRNetApp *FE)
 {
-   FE = fe;
+   mrnApp = FE;
    Setup(); /* User-defined in the specific protocol object implementation */
    AnnounceStreams();
 }
@@ -48,8 +48,8 @@ void FrontProtocol::Init(FrontEnd *fe)
  */
 STREAM * FrontProtocol::Register_Stream(int up_transfilter_id = TFILTER_NULL, int up_syncfilter_id = SFILTER_WAITFORALL)
 {
-   Communicator *comm_BC = FE->net->get_BroadcastCommunicator();
-   STREAM *new_stream = FE->net->new_Stream(comm_BC, up_transfilter_id, up_syncfilter_id);
+   Communicator *comm_BC = mrnApp->net->get_BroadcastCommunicator();
+   STREAM *new_stream = mrnApp->net->new_Stream(comm_BC, up_transfilter_id, up_syncfilter_id);
    registeredStreams.push(new_stream);
    return new_stream;
 }
@@ -64,9 +64,9 @@ STREAM * FrontProtocol::Register_Stream(int up_transfilter_id = TFILTER_NULL, in
  */
 STREAM * FrontProtocol::Register_Stream(string filter_name, int up_syncfilter_id = SFILTER_WAITFORALL)
 {
-   Communicator *comm_BC = FE->net->get_BroadcastCommunicator();
-   int filter_id = FE->LoadFilter( filter_name ) ;
-   STREAM *new_stream = FE->net->new_Stream(comm_BC, filter_id, up_syncfilter_id);
+   Communicator *comm_BC = mrnApp->net->get_BroadcastCommunicator();
+   int filter_id = ((FrontEnd *)mrnApp)->LoadFilter( filter_name ) ;
+   STREAM *new_stream = mrnApp->net->new_Stream(comm_BC, filter_id, up_syncfilter_id);
    registeredStreams.push(new_stream);
    return new_stream;
 }
@@ -85,7 +85,7 @@ int FrontProtocol::AnnounceStreams()
    unsigned int countACKs = 0;
 
    /* Send the number of streams */
-   MRN_STREAM_SEND(FE->stControl, TAG_STREAM, "%d", registeredStreams.size());
+   MRN_STREAM_SEND(mrnApp->stControl, TAG_STREAM, "%d", registeredStreams.size());
    for (unsigned int i=0; i<registeredStreams.size(); i++)
    {
       STREAM *st = registeredStreams.front();
@@ -95,11 +95,11 @@ int FrontProtocol::AnnounceStreams()
       registeredStreams.pop();
    }
    /* Read ACKs */
-   MRN_STREAM_RECV(FE->stControl, &tag, p, TAG_ACK);
+   MRN_STREAM_RECV(mrnApp->stControl, &tag, p, TAG_ACK);
    p->unpack("%d", &countACKs);
-   if (countACKs != FE->stControl->size())
+   if (countACKs != mrnApp->stControl->size())
    {
-      cerr << "[FE] Error announcing streams! (" << countACKs << " ACKs received, expected " << FE->stControl->size() << ")" << endl;
+      cerr << "[FE] Error announcing streams! (" << countACKs << " ACKs received, expected " << mrnApp->stControl->size() << ")" << endl;
       return -1;
    }
    return 0;

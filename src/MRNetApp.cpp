@@ -34,6 +34,7 @@ MRNetApp::MRNetApp()
 {
    net       = NULL;
    stControl = NULL;
+   No_BE_Instantiation = false;
 }
 
 
@@ -56,6 +57,37 @@ STREAM * MRNetApp::GetControlStream()
    return stControl;
 }
 
+
+/**
+ * Returns the rank of the current MRNet process.
+ * @return the MRNet process rank.
+ */
+unsigned int MRNetApp::WhoAmI(void)
+{
+   unsigned int mrnID = 0;
+   if (net != NULL)
+   {
+      mrnID = NETWORK_get_LocalRank(net);
+   }
+   else 
+   {
+      cerr << "ERROR: MRNetApp::WhoAmI() called but Network is not yet initialized!" << endl;
+   }
+   return ((isBE() && No_BE_Instantiation) ? MPI_RANK(mrnID) : mrnID);
+}
+
+
+/**
+ * Checks the Network Topology for the number of back-ends.
+ * @return number of back-ends in the MRNet.
+ */
+unsigned int MRNetApp::NumBackEnds(void)
+{
+   unsigned int num_be;
+   NETWORK_get_NumBackEnds(net, num_be);
+   return num_be;
+}
+
 /**
  * Keeps a mapping of the loaded protocols, indexed by the protocol ID.
  * @param prot The protocol that is being loaded.
@@ -69,6 +101,7 @@ int MRNetApp::LoadProtocol(Protocol *prot)
    }
    return 0;
 }
+
 
 /**
  * Returns the loaded protocol object identified by ID.

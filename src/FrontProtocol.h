@@ -25,17 +25,14 @@
 
 #include "Protocol.h"
 
-class FrontEnd;
-
 class FrontProtocol : public Protocol
 {
    public:
-      void Init(FrontEnd *fe);
+      void Init(MRNetApp *FE);
       STREAM * Register_Stream(int up_transfilter_id, int up_syncfilter_id);
       STREAM * Register_Stream(string filter_name,    int up_syncfilter_id);
 
    protected:
-      FrontEnd *FE;
       int AnnounceStreams();
 };
 

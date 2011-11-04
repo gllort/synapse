@@ -34,8 +34,16 @@ using namespace std;
  */
 BackEnd::BackEnd()
 {
-   WhoAmI              = 0;
-   No_BE_Instantiation = false;
+}
+
+
+/**
+ * Called from the superclass to identify which type of MRNet process this is.
+ * @return true.
+ */
+bool BackEnd::isBE()
+{
+   return true;
 }
 
 
@@ -80,14 +88,12 @@ int BackEnd::Init()
    int tag;
    PACKET_new(p);
 
-   WhoAmI = NETWORK_get_LocalRank(net);
-
    /* Receive the control stream */
    int rc = NETWORK_recv(net, &tag, p, &stControl, true);
    PACKET_delete(p);
    if ( rc != 1 )
    {
-      cerr << "[BE " << WHOAMI << "] net::recv() failure" << endl;
+      cerr << "[BE " << WhoAmI() << "] net::recv() failure" << endl;
       return -1;
    }
    return 0;

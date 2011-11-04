@@ -27,6 +27,9 @@
 #include <string>
 #include "MRNet_wrappers.h"
 
+#define MRNET_RANK(r) (r+1000000)
+#define MPI_RANK(r)   (r-1000000)
+
 using std::map;
 using std::string;
 
@@ -39,14 +42,21 @@ class MRNetApp
       STREAM  * stControl;
 
       MRNetApp();
-      NETWORK * GetNetwork      (void);
-      STREAM  * GetControlStream(void);
-      int       LoadProtocol    (Protocol *prot);
-      Protocol* FetchProtocol   (string prot_id);
+      virtual ~MRNetApp() { };
+
+      NETWORK * GetNetwork       (void);
+      STREAM  * GetControlStream (void);
+      int       LoadProtocol     (Protocol *prot);
+      Protocol* FetchProtocol    (string prot_id);
+      unsigned int NumBackEnds   (void);
+      unsigned int WhoAmI        (void);
+      virtual bool isFE (void) { return false; };
+      virtual bool isBE (void) { return false; };
 
    protected:
       bool No_BE_Instantiation; /* Network instantiation mode; 
                                    true=no back-ends, false=normal */
+
    private:
       map<string, Protocol*> loadedProtocols; /* Mapping of user-defined protocols that are loaded 
                                                  into the FE/BE, indexed by their ID */

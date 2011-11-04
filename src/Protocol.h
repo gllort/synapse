@@ -29,21 +29,31 @@
 
 using namespace std;
 
+class MRNetApp;
+
 class Protocol 
 {
    public:
+      Protocol();
       virtual ~Protocol() { };
 
+      virtual void Init (MRNetApp *) = 0;
+
       /* The following have to be defined for every protocol implementation */
+      virtual string ID   (void) = 0;  /* Returns the protocol (textual) identifier                            */
+      virtual void   Setup(void) { }; /* Redefine this to register new streams using calls to Register_Stream */
+      virtual int    Run  (void) = 0;  /* Implements the protocol to execute                                   */
 
-      virtual string ID() = 0;  /* Returns the protocol (textual) identifier                            */
-      virtual void Setup() { }; /* Redefine this to register new streams using calls to Register_Stream */
-      virtual int  Run()  = 0;  /* Implements the protocol to execute                                   */
+      unsigned int WhoAmI();
+      unsigned int NumBackEnds();
 
+   protected:
       /* Stores the streams that are created in Setup() using Register_Stream. All streams in this queue
          by the end of Setup() (in the front-end) are automatically send to the back-ends and stored here.
          Calls to Register_Stream in the back-end pop the streams from the queue and return them to the user. */
       queue<STREAM *> registeredStreams;
+
+      MRNetApp *mrnApp;
 };
 
 #endif /* __PROTOCOL_H__ */

@@ -6,12 +6,13 @@
 
 class Ping : public BackProtocol
 {
-public:
-   string ID() { return "PING"; }
-   void Setup();
-   int  Run();
-private:
-   STREAM *stAdd;
+   public:
+      string ID (void) { return "PING"; } /* Must coincide with the front-end protocol */
+      void Setup(void);
+      int  Run  (void);
+
+   private:
+      STREAM *stAdd;
 };
 
 #endif /* __PING_BE_H__ */

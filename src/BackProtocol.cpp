@@ -32,9 +32,9 @@ using namespace std;
  * then receives all the streams that were created in the front-end.
  * @param be The BackEnd object.
  */
-void BackProtocol::Init(BackEnd *be)
+void BackProtocol::Init(MRNetApp *BE)
 {
-   BE = be;
+   mrnApp = BE;
    AnnounceStreams();
    Setup(); /* User-defined in the specific protocol object implementation */
 }
@@ -67,18 +67,18 @@ int BackProtocol::AnnounceStreams()
    unsigned int countStreams = 0;
 
    /* Read the number of streams that were created */
-   MRN_STREAM_RECV(BE->stControl, &tag, p, TAG_STREAM);
+   MRN_STREAM_RECV(mrnApp->stControl, &tag, p, TAG_STREAM);
    PACKET_unpack(p, "%d", &countStreams);
 
    /* Receive them 1 by 1 */
    for (unsigned int i=0; i<countStreams; i++)
    {
       STREAM *newStream;
-      MRN_NETWORK_RECV(BE->net, &tag, p, TAG_STREAM, &newStream, true);
+      MRN_NETWORK_RECV(mrnApp->net, &tag, p, TAG_STREAM, &newStream, true);
       registeredStreams.push(newStream);
    }
    /* Send reception confirmation */
-   MRN_STREAM_SEND(BE->stControl, TAG_ACK, "%d", 1);
+   MRN_STREAM_SEND(mrnApp->stControl, TAG_ACK, "%d", 1);
    PACKET_delete(p);
    return 0;
 }

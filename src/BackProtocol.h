@@ -25,16 +25,13 @@
 
 #include "Protocol.h"
 
-class BackEnd;
-
 class BackProtocol : public Protocol
 {
    public:
-      void Init(BackEnd *be);
+      void Init(MRNetApp *BE);
       void Register_Stream(STREAM *& new_stream);
 
    protected:
-      BackEnd *BE;
       int AnnounceStreams();
 };
 

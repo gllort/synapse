@@ -1,5 +1,8 @@
 
-bin_PROGRAMS = FE BE
+abs_top_builddir = @abs_top_builddir@
+
+noinst_bin_PROGRAMS = FE BE
+noinst_bindir = $(abs_top_builddir)/test
 
 FE_SOURCES   = FE.cpp Ping_FE.cpp
 FE_CXXFLAGS  = -I. -I../src @MRNET_CXXFLAGS@

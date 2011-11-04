@@ -38,7 +38,16 @@ using namespace MRN;
 FrontEnd::FrontEnd()
 {
    numBackendsConnected = 0;
-   No_BE_Instantiation  = false;
+}
+
+
+/**
+ * Called from the superclass to identify which type of MRNet process this is.
+ * @return true. 
+ */
+bool FrontEnd::isFE()
+{
+   return true;
 }
 
 
@@ -205,8 +214,6 @@ int FrontEnd::Init()
    return 0;
 }
 
-
-#define MAX_RETRIES 60 /* Seconds to wait for the backends to connect before throwing a timeout */
 
 /**
  * Waits for all the backends to connect to the network. 
@@ -383,8 +390,6 @@ int FrontEnd::LoadFilter(string filter_name)
 {
    if (filter_name != "")
    {
-      /* Load the specific filter */
-
       string paths(".");
       char  *env_filter_path = getenv("MRNAPP_FILTER_PATH");
 
@@ -395,20 +400,23 @@ int FrontEnd::LoadFilter(string filter_name)
 
       for (unsigned int i=0; i<paths_array.size(); i++)
       {
-         string filter_so("");
+         string filter_so(""), filter_func("filter");
 
          if (paths_array[i].size() > 0)
          {
             filter_so += paths_array[i];
             if (paths_array[i][paths_array[i].size()-1] != '/') filter_so += "/";
          }
+         filter_so += "libfilter";
          filter_so += filter_name;
          filter_so += ".so";
+
+         filter_func += filter_name;
 
          ifstream fd(filter_so.c_str());
          if (fd.good())
          {
-            int filter_id = net->load_FilterFunc( filter_so.c_str(), filter_name.c_str() );
+            int filter_id = net->load_FilterFunc( filter_so.c_str(), filter_func.c_str() );
             if (filter_id == -1)
             {
                cerr << "[FE] Error loading filter " << filter_so << endl;
@@ -416,7 +424,7 @@ int FrontEnd::LoadFilter(string filter_name)
             }
             else
             {
-               cout << "[FE] Filter " << filter_so << " (ID=" << filter_id << ") loaded successfully!" << endl;
+               cout << "[FE] Filter " << filter_so << " (routine=" << filter_func << ", ID=" << filter_id << ") loaded successfully!" << endl;
                return filter_id;
             }
          }

@@ -27,27 +27,26 @@
 #include <vector>
 #include "MRNetApp.h"
 
+#define MAX_RETRIES 60 /* Seconds to wait for the backends to connect before throwing a timeout */
+
 using std::string;
 using std::vector;
 
 class FrontEnd : public MRNetApp
 {
    public:
-      unsigned int numBackendsConnected;
+      unsigned int numBackendsConnected; /* public so it can be accessed by the BE Quit callback */
 
       FrontEnd();
+      bool isFE(); 
 
       int  Init(const char *TopologyFile, const char *BackendExe,   const char **BackendArgs);
       int  Init(const char *TopologyFile, unsigned int numBackends, const char *ConnectionsFile);
-
-      int  ConnectedBackEnds();
-
+      int  ConnectedBackEnds(void);
       int  LoadProtocol(Protocol *prot);
-      int  LoadFilter(string filter_name);
-
-      int  Dispatch(string protID, Protocol *& prot);
-
-      void Shutdown();
+      int  LoadFilter  (string filter_name);
+      int  Dispatch    (string protID, Protocol *& prot);
+      void Shutdown    (void);
 
    private:
       int Init();

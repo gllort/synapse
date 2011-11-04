@@ -25,14 +25,11 @@
 
 #include "MRNetApp.h"
 
-#define MRNET_RANK(r) (r+1000000)
-#define MPI_RANK(r)   (r-1000000)
-#define WHOAMI        (No_BE_Instantiation ? MPI_RANK(WhoAmI) : WhoAmI)
-
 class BackEnd : public MRNetApp
 {
    public:
       BackEnd();
+      bool isBE();
 
       int  Init(int argc,  char *argv[]);
       int  Init(int wRank, const char *connectionsFile);
@@ -42,8 +39,6 @@ class BackEnd : public MRNetApp
       void Shutdown();
 
    private:
-      unsigned int WhoAmI;
-
       int       Init();
       NETWORK * Connect(int wRank, const char *connectionsFile);
       int       getParentInfo(const char *file, int rank, char *phost, char *pport, char *prank);
