@@ -54,6 +54,6 @@ AX_PROG_MRNET
 AC_C_CONST
 AC_TYPE_SIZE_T
 
-AC_CONFIG_FILES([Makefile src/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile scripts/Makefile test/Makefile])
 
 AC_OUTPUT

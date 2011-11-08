@@ -1,8 +1,8 @@
 
-abs_top_builddir = @abs_top_builddir@
+#abs_top_builddir = @abs_top_builddir@
 
-noinst_bin_PROGRAMS = FE BE
-noinst_bindir = $(abs_top_builddir)/test
+noinst_PROGRAMS = FE BE
+#bindir = $(abs_top_builddir)/test
 
 FE_SOURCES   = FE.cpp Ping_FE.cpp
 FE_CXXFLAGS  = -I. -I../src @MRNET_CXXFLAGS@
@@ -18,3 +18,4 @@ BE_LDADD     = ../src/.libs/libmrnapp_backend.la
 if USE_LIGHTWEIGHT
 BE_CXXFLAGS += -DLIGHTWEIGHT
 endif
+

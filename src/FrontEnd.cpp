@@ -133,6 +133,25 @@ int FrontEnd::Init(const char *TopologyFile, const char *BackendExe, const char 
 }
 
 
+/** 
+ * Normal instantiation that reads the topology from the environment variable MRNAPP_TOPOLOGY. 
+ * @param BackendExe The backend executable to start.
+ * @param BackendArgs The arguments of the backend.
+ * @return 0 if the MRNet starts successfully; -1 otherwise.
+ */
+int FrontEnd::Init(const char *BackendExe, const char **BackendArgs)
+{
+   char *env_MRNAPP_TOPOLOGY = getenv("MRNAPP_TOPOLOGY");
+   if (env_MRNAPP_TOPOLOGY == NULL)
+   {
+      cerr << "[FE] ERROR: MRNAPP_TOPOLOGY environment variable is not defined!" << endl; 
+      cerr << "[FE] Make it point to the MRNet topology file." << endl;
+      return -1;
+   }
+   return Init(((const char *)env_MRNAPP_TOPOLOGY), BackendExe, BackendArgs);
+}
+
+
 /**
  * Instantiates the MRNet except the backends, and waits for these to connect.
  * @param TopologyFile    Topology of the network (not including backends).
@@ -189,6 +208,25 @@ int FrontEnd::Init(const char *TopologyFile, unsigned int numBackends, const cha
    }
 
    return Init();
+}
+
+
+/**
+ * No back-ends instantiation that reads the topology from the environment variable MRNAPP_TOPOLOGY.
+ * @param numBackends     Number of backends that will be manually spawned.
+ * @param ConnectionsFile File where backends connections will be written to.
+ * @return 0 if the MRNet starts successfully; -1 otherwise.
+ */
+int FrontEnd::Init(unsigned int numBackends, const char *ConnectionsFile)
+{
+   char *env_MRNAPP_TOPOLOGY = getenv("MRNAPP_TOPOLOGY");
+   if (env_MRNAPP_TOPOLOGY == NULL)
+   {
+      cerr << "[FE] ERROR: MRNAPP_TOPOLOGY environment variable is not defined!" << endl;
+      cerr << "[FE] Make it point to the MRNet topology file." << endl;
+      return -1;
+   }
+   return Init(((const char *)env_MRNAPP_TOPOLOGY), numBackends, ConnectionsFile);
 }
 
 

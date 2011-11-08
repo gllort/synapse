@@ -41,7 +41,9 @@ class FrontEnd : public MRNetApp
       bool isFE(); 
 
       int  Init(const char *TopologyFile, const char *BackendExe,   const char **BackendArgs);
+      int  Init(const char *BackendExe,   const char **BackendArgs);
       int  Init(const char *TopologyFile, unsigned int numBackends, const char *ConnectionsFile);
+      int  Init(unsigned int numBackends, const char *ConnectionsFile);
       int  ConnectedBackEnds(void);
       int  LoadProtocol(Protocol *prot);
       int  LoadFilter  (string filter_name);
