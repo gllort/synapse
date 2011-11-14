@@ -6,4 +6,5 @@ export MRNET_HOME=@sub_MRNET_HOME@
 export MRNET_COMM_PATH=${MRNET_HOME}/bin/mrnet_commnode
 export MRNET_TOPGEN=${MRNET_HOME}/bin/mrnet_topgen
 export XPLAT_RESOLVE_HOSTS=0
+export LD_LIBRARY_PATH=${MRNET_HOME}/lib:${LD_LIBRARY_PATH}
 

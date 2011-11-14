@@ -1,21 +1,13 @@
 
-#abs_top_builddir = @abs_top_builddir@
+MRNAPP_CONFIG = ${prefix}/bin/mrnapp-config
 
-noinst_PROGRAMS = FE BE
-#bindir = $(abs_top_builddir)/test
+noinst_PROGRAMS = test_FE test_BE
 
-FE_SOURCES   = FE.cpp Ping_FE.cpp
-FE_CXXFLAGS  = -I. -I../src @MRNET_CXXFLAGS@
-FE_LDADD     = ../src/.libs/libmrnapp_frontend.la
+test_FE_SOURCES  = FE.cpp Ping_FE.cpp
+test_FE_CXXFLAGS = `${MRNAPP_CONFIG} --fe-cflags`
+test_FE_LDFLAGS  = `${MRNAPP_CONFIG} --fe-libs`
 
-BE_SOURCES   = BE.cpp Ping_BE.cpp
-BE_CXXFLAGS  = -I. -I../src @MRNET_CXXFLAGS@
-BE_LDADD     = ../src/.libs/libmrnapp_backend.la
-
-# You need to compile with -DLIGHTWEIGHT if the 
-# back-ends are using the lightweight version 
-# of the MRNet library!
-if USE_LIGHTWEIGHT
-BE_CXXFLAGS += -DLIGHTWEIGHT
-endif
+test_BE_SOURCES  = BE.cpp Ping_BE.cpp
+test_BE_CXXFLAGS = `${MRNAPP_CONFIG} --be-cflags`
+test_BE_LDFLAGS  = `${MRNAPP_CONFIG} --be-libs`
 

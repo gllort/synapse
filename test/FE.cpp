@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
    /* Start the front-end side of the network */
    FrontEnd *FE = new FrontEnd();
-   FE->Init("topology_1x4.txt", "./BE", NULL);
+   FE->Init("topology_1x4.txt", "./test_BE", NULL);
 
    /* Load the protocols the network understand */
    FrontProtocol *prot = new Ping();
