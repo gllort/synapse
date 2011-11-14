@@ -12,6 +12,7 @@ Known values for OPTION are:
   --fe-libs     print library linking information for the front-end
   --be-cflags   print pre-processor and compiler flags for the back-ends
   --be-libs     print library linking information for the back-ends
+  --cp-cflags   print pre-processor and compiler flags for the filters
   --help        display this help and exit
   --version     output version information
 
@@ -40,12 +41,16 @@ while test $# -gt 0; do
 		;;
 
 	--fe-cflags)
-		echo -I@sub_PREFIX@/include -I@sub_MRNET_CXXFLAGS@ -Wl,-E
+		echo -I@sub_PREFIX@/include @sub_MRNET_CXXFLAGS@ -Wl,-E -DFRONTEND
 		;;
 
 	--be-cflags)
-		echo -I@sub_PREFIX@/include -I@sub_MRNET_CXXFLAGS@ @sub_LIGHTWEIGHT@ -Wl,-E
+		echo -I@sub_PREFIX@/include @sub_MRNET_CXXFLAGS@ @sub_LIGHTWEIGHT@ -Wl,-E -DBACKEND
 		;;
+
+    --cp-cflags)
+        echo -fPIC -shared -rdynamic -I@sub_PREFIX@/include @sub_MRNET_CXXFLAGS@ -DFILTER
+        ;;
 
 	--fe-libs)
 		echo -L@sub_PREFIX@/lib -lmrnapp_frontend -L@sub_MRNET_LIBSDIR@ @sub_FE_MRNET_LIBS@

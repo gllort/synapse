@@ -103,6 +103,10 @@ int FrontEnd::Init(const char *TopologyFile, const char *BackendExe, const char 
 {
    bool cbrett = false;
 
+
+   setenv("LD_LIBRARY_PATH", "/home/bsc41/bsc41127/apps/MRNET/last/32/lib", 1);
+
+
    /* Start MRNet and backends */
    net = Network::CreateNetworkFE( TopologyFile, BackendExe, BackendArgs );
    if ( net->has_Error() )
@@ -396,6 +400,18 @@ int FrontEnd::Dispatch(string prot_id, Protocol *& prot)
    }
    cout << "[FE] " << prot_id << ": SUCCESS" << endl; 
    return 0;
+}
+
+
+/**
+ * Wrapper for Dispatch(string, Protocol *&) that does not return the protocol by reference.
+ * @param prot_id The protocol identifier.
+ * @return 0 on success; -1 otherwise.
+ */
+int FrontEnd::Dispatch(string prot_id)
+{
+   Protocol *prot = NULL;
+   return Dispatch(prot_id, prot);
 }
 
 

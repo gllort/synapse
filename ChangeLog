@@ -1,3 +1,4 @@
 [+ added, - removed, * changed ]
+   + (14/Nov/2011) New scripts mrnrun (launch apps) and sourceme.sh (set environment) 
    + (08/Nov/2011) New script mrnapp-config to query configure options (cflags, libs, etc.)
    + (25/Oct/2011) Initial commit of the libMRNetApp package.

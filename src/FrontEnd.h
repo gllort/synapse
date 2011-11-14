@@ -48,6 +48,7 @@ class FrontEnd : public MRNetApp
       int  LoadProtocol(Protocol *prot);
       int  LoadFilter  (string filter_name);
       int  Dispatch    (string protID, Protocol *& prot);
+      int  Dispatch    (string protID);
       void Shutdown    (void);
 
    private:

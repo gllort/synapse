@@ -1,7 +1,10 @@
 
 MRNAPP_CONFIG = mrnapp-config
+SOURCEME_SH   = sourceme.sh
+MRNRUN        = mrnrun
 
-bin_SCRIPTS = $(MRNAPP_CONFIG)
+bin_SCRIPTS    = $(MRNAPP_CONFIG) $(MRNRUN)
+noinst_SCRIPTS = $(SOURCEME_SH)
 
 $(MRNAPP_CONFIG): $(MRNAPP_CONFIG).in
 	cp $^ $@
@@ -19,8 +22,21 @@ else
 endif
 	chmod u+x $@
 
+$(MRNRUN): $(MRNRUN).in
+	cp $^ $@
+	$(top_srcdir)/substitute $(SED) "@sub_PREFIX@"         "${prefix}"          $@
+	chmod u+x $@
+
+$(SOURCEME_SH): $(SOURCEME_SH).in
+	cp $^ $@
+	$(top_srcdir)/substitute $(SED) "@sub_MRNAPP_HOME@"    "${prefix}"          $@
+	$(top_srcdir)/substitute $(SED) "@sub_MRNET_HOME@"     "@MRNET_HOME@"       $@
+    
 install-data-hook:
 	chmod u+x ${bindir}/$(MRNAPP_CONFIG)
+	$(mkdir_p) $(prefix)/etc
+	cp $(SOURCEME_SH) $(prefix)/etc
 
 clean-local:
-	rm -f $(MRNAPP_CONFIG)
+	rm -f $(MRNAPP_CONFIG) $(SOURCEME_SH) $(MRNRUN)
+
