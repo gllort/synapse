@@ -43,7 +43,7 @@ class FrontEnd : public MRNetApp
       int  Init(const char *TopologyFile, const char *BackendExe,   const char **BackendArgs);
       int  Init(const char *BackendExe,   const char **BackendArgs);
       int  Init(const char *TopologyFile, unsigned int numBackends, const char *ConnectionsFile);
-      int  Init(unsigned int numBackends, const char *ConnectionsFile);
+      int  Init();
       int  ConnectedBackEnds(void);
       int  LoadProtocol(Protocol *prot);
       int  LoadFilter  (string filter_name);
@@ -52,7 +52,7 @@ class FrontEnd : public MRNetApp
       void Shutdown    (void);
 
    private:
-      int Init();
+      int CommonInit();
       int WaitForBackends(unsigned int numBackends, const char *ConnectionsFile);
       int WriteConnections(
          vector< NetworkTopology::Node * >& internalLeaves,

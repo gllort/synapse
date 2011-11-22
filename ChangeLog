@@ -1,4 +1,6 @@
 [+ added, - removed, * changed ]
+   * (22/Nov/2011) Added Init routines both in the FE and BE API's that read parameters from environment variables
+   * (22/Nov/2011) Improved script 'mrnrun'
    + (14/Nov/2011) New scripts mrnrun (launch apps) and sourceme.sh (set environment) 
    + (08/Nov/2011) New script mrnapp-config to query configure options (cflags, libs, etc.)
    + (25/Oct/2011) Initial commit of the libMRNetApp package.

@@ -3,93 +3,250 @@
 ### Environment 
 source @sub_PREFIX@/etc/sourceme.sh
 
+### Logging
 unset MRNET_OUTPUT_LEVEL
-#export LOGDIR=`pwd`/mrnet_log/${SLURM_JOBID}
+#export LOGDIR=`pwd`/mrnet_log/${JOBID}
 #mkdir -p $LOGDIR
 #export MRNET_OUTPUT_LEVEL=3
 #export MRNET_DEBUG_LOG_DIRECTORY=${LOGDIR}
 
-### Check arguments
-if [ $# -lt 3 ]; then
-	echo "`basename $0`: Invalid arguments."
-	echo "Syntax: `basename $0` <nprocs> <front-end> [front-end-args]"
-	exit
+### Print help
+function Usage 
+{
+  echo ""
+  echo "Syntax: `basename $0` --nb <num-back-ends> --fe <front-end> [--fe-args <arguments>] [--be <back-end> [--be-args <arguments>]]"
+  echo ""
+  exit
+}
+
+### Convert a relative path into absolute
+function rel2abs 
+{
+  path=`dirname $1`
+  file=`basename $1`
+  local  __resultvar=$2
+  cd $path
+  clean_path=`pwd`
+  cd - >& /dev/null
+  last_char=${clean_path#${clean_path%?}}
+  if [ "$last_char" != "/" ]; then
+    clean_path="$clean_path/"
+  fi
+  clean_path="$clean_path$file"
+  eval $2=$clean_path
+}
+
+### Check whether the execution environment is interactive or system queues
+INTERACTIVE=0
+MPI_BACKENDS=0
+
+if [ "${SLURM_JOBID}" = "" ]; then
+  INTERACTIVE=1
+  JOBID=local
+else
+  JOBID=${SLURM_JOBID}
 fi
-NUM_BACKENDS=$1
-shift
-FRONTEND=$1
-shift
-FRONTEND_ARGS=$@
 
-SLURM_MLIST=sl-list-${SLURM_JOBID}
-CP_MLIST=cp-list-${SLURM_JOBID}
-BE_MLIST=be-list-${SLURM_JOBID}
+### Parse arguments
+if [ $# -lt 4 ]; then
+  echo "`basename $0`: Requires more arguments!"
+  Usage
+fi
+FE_APP_FOUND=0
+BE_APP_FOUND=0
+NUM_BE_FOUND=0
+FE=1
+BE=2
+while [ "${1+isset}" ]; do
+  case $1 in
+    "--nb")
+      NUM_BACKENDS=$2
+      NUM_BE_FOUND=1
+      shift 2
+      ;; 
+    "--fe") 
+      FRONTEND=$2
+      FE_APP_FOUND=1
+      shift 2
+      ;;
+    "--fe-args") 
+      TARGET=$FE
+      shift 1
+      ;;
+    "--be") 
+      BACKEND=$2
+      BE_APP_FOUND=1
+      shift 2
+      ;;
+    "--be-args") 
+      TARGET=$BE
+      shift 1
+      ;;
+    *) 
+      ARGS[$TARGET]="${ARGS[$TARGET]} $1" 
+      shift 1
+      ;;
+  esac
+done
+FRONTEND_ARGS=${ARGS[$FE]}
+BACKEND_ARGS=${ARGS[$BE]}
 
-### Get assigned resources
-/opt/perf/bin/sl_get_machine_list | sort > ${SLURM_MLIST}
-SLURM_NPROC=`cat ${SLURM_MLIST} | wc -l`
+if [ $NUM_BE_FOUND == 0 ]; then
+  echo "`basename $0`: Number of back-ends has to be specified with --nb"
+  Usage
+fi
+if [ $FE_APP_FOUND == 0 ]; then
+  echo "`basename $0`: Front-end has to be specified with --fe"
+  Usage
+else
+  if [ ! -f "$FRONTEND" ]; then
+    echo "`basename $0`: File '$FRONTEND' does not exist!"
+    Usage
+  else
+    rel2abs $FRONTEND FRONTEND
+  fi
+fi
+if [ $BE_APP_FOUND == 1 ]; then
+  if [ ! -f "$BACKEND" ]; then
+    echo "`basename $0`: File '$BACKEND' does not exist!"
+    Usage
+  else
+    MPI_BACKENDS=1
+    rel2abs $BACKEND BACKEND
+  fi 
+fi 
 
-### Get resources for the MRNet
-let CP_NPROC=${SLURM_NPROC}-${NUM_BACKENDS}
-head -n${CP_NPROC} ${SLURM_MLIST} | awk '{ print $1 "-myrinet1" }' > ${CP_MLIST}
-
-### Get resources for the back-ends
-tail -n${NUM_BACKENDS} ${SLURM_MLIST} | awk '{ print $1 "-myrinet1" }' > ${BE_MLIST}
+echo     "+ Front-end appl: $FRONTEND"
+echo -ne "+ Front-end args: "
+if [ -n "$FRONTEND_ARGS" ]; then
+  echo   "$FRONTEND_ARGS"
+else
+  echo   "<no arguments>"
+fi
+if [ -n "$BACKEND" ]; then
+  echo     "+ Back-end appl : $BACKEND"
+  echo -ne "+ Back-end args : "
+  if [ -n "$BACKEND_ARGS" ]; then
+    echo   "$BACKEND_ARGS"
+  else
+    echo   "<no arguments>"
+  fi
+fi
+echo "+ Num Back-ends : $NUM_BACKENDS"
 
 ### Build MRNet topology 
-TOPOLOGY=top-${SLURM_JOBID}
+TOPOLOGY=top-${JOBID}
+rm -f ${TOPOLOGY}
 
-# Search for a square number of comm nodes
-let NUM_COMM_NODES=$CP_NPROC;
-if [ $NUM_COMM_NODES -ge ${NUM_BACKENDS} ] ; then
-	let NUM_COMM_NODES=$NUM_BACKENDS/2;
-fi 
-if [ $NUM_COMM_NODES -gt 0 ]; then
+if [ $INTERACTIVE == 1 ]; then
+  ### In interactive mode, everything runs in localhost
+  echo "localhost:0 =>" >> $TOPOLOGY
+  for (( i=1; i<=$NUM_BACKENDS; i++ )); do
+    echo -ne "    localhost:$i" >> $TOPOLOGY
+    if [ $i == $NUM_BACKENDS ]; then
+      echo ";" >> $TOPOLOGY
+    else 
+      echo "" >> $TOPOLOGY
+    fi
+  done
+else
+  ### In queues, we query the system for available resournces and split them:
+  ### part for the application and part for the MRNet
+  MAX_PROCS_PER_NODE=4
+  RS_MLIST=rs-list-${JOBID}
+  CP_MLIST=cp-list-${JOBID}
+  BE_MLIST=be-list-${JOBID}
+  rm -f ${RS_MLIST} ${CP_MLIST} ${BE_MLIST}
+
+  ### Query the available resources from the system
+  /opt/perf/bin/sl_get_machine_list | sort > ${RS_MLIST}
+  RS_NPROC=`cat ${RS_MLIST} | wc -l`
+
+  ### Get resources for the MRNet
+  let CP_NPROC=${RS_NPROC}-${NUM_BACKENDS}
+  head -n${CP_NPROC} ${RS_MLIST} | awk '{ print $1 "-myrinet1" }' > ${CP_MLIST}
+
+  ### Get resources for the back-ends
+  tail -n${NUM_BACKENDS} ${RS_MLIST} | awk '{ print $1 "-myrinet1" }' > ${BE_MLIST}
+
+  # Search for a square number of comm nodes
+  let NUM_COMM_NODES=$CP_NPROC;
+  if [ $NUM_COMM_NODES -ge ${NUM_BACKENDS} ] ; then
+    let NUM_COMM_NODES=$NUM_BACKENDS/2;
+  fi 
+  if [ $NUM_COMM_NODES -gt 0 ]; then
     c=$[ $NUM_BACKENDS % $NUM_COMM_NODES ]
     while [ $c -ne 0 ] && [ $NUM_COMM_NODES -gt 1 ] ; do
         let NUM_COMM_NODES=$NUM_COMM_NODES-1
         c=$[ $NUM_BACKENDS % $NUM_COMM_NODES ]
     done
-fi
+  fi
 
-if [ $NUM_COMM_NODES -ge 2 ]; then
+  if [ $NUM_COMM_NODES -ge 2 ]; then
     # We have enough resources for comm nodes (2 at least + the root)
     echo "`basename $0`: Using $NUM_COMM_NODES CP's."
-	SPEC="${NUM_COMM_NODES}:"
-	let BExCP=${NUM_BACKENDS}/${NUM_COMM_NODES};
-	let EXTRA=${NUM_BACKENDS}%${NUM_COMM_NODES};
-	for (( i=0; i<${NUM_COMM_NODES}; i++ ))
-	do
-		if [ $i -lt $EXTRA ]; then
-			SPEC="${SPEC}`expr ${BExCP} + 1`"
-		else
-			SPEC="${SPEC}${BExCP}"
-		fi
-		if [ $i -lt `expr ${NUM_COMM_NODES} - 1` ]; then
-			SPEC="${SPEC},"
-		fi
-	done
-	echo "${MRNET_HOME}/bin/mrnet_topgen -b ${BE_MLIST} -c ${CP_MLIST} -q 4 -r 4 -t g:${SPEC}"
-	${MRNET_HOME}/bin/mrnet_topgen -b ${BE_MLIST} -c ${CP_MLIST} -q 4 -r 4 -t g:${SPEC} -o ${TOPOLOGY}
-  
-elif [ $CP_NPROC -ge 1 ]; then
+    if [ $MPI_BACKENDS == 1 ]; then
+      SPEC="${NUM_COMM_NODES}"
+    else
+      SPEC="${NUM_COMM_NODES}:"
+      let BExCP=${NUM_BACKENDS}/${NUM_COMM_NODES};
+      let EXTRA=${NUM_BACKENDS}%${NUM_COMM_NODES};
+      for (( i=0; i<${NUM_COMM_NODES}; i++ )); do
+        if [ $i -lt $EXTRA ]; then
+          SPEC="${SPEC}`expr ${BExCP} + 1`"
+        else
+          SPEC="${SPEC}${BExCP}"
+        fi
+        if [ $i -lt `expr ${NUM_COMM_NODES} - 1` ]; then
+          SPEC="${SPEC},"
+        fi
+      done
+    fi
+    echo "${MRNET_HOME}/bin/mrnet_topgen -b ${BE_MLIST} -c ${CP_MLIST} -q ${MAX_PROCS_PER_NODE} -r ${MAX_PROCS_PER_NODE} -t g:${SPEC}"
+    ${MRNET_HOME}/bin/mrnet_topgen -b ${BE_MLIST} -c ${CP_MLIST} -q ${MAX_PROCS_PER_NODE} -r ${MAX_PROCS_PER_NODE} -t g:${SPEC} -o ${TOPOLOGY}
+
+  elif [ $CP_NPROC -ge 1 ]; then
     # We have resources for a root-topology only
-	echo "`basename $0`: Using root-only topology."
-	echo "${MRNET_HOME}/bin/mrnet_topgen -b ${BE_MLIST} -q 4 -r 4 -t g:${NUM_BACKENDS}"
-	${MRNET_HOME}/bin/mrnet_topgen -b ${BE_MLIST} -q 4 -r 4 -t g:${NUM_BACKENDS} -o ${TOPOLOGY}
-else
+    echo "`basename $0`: Using root-only topology."
+    echo "${MRNET_HOME}/bin/mrnet_topgen -b ${BE_MLIST} -q ${MAX_PROCS_PER_NODE} -r ${MAX_PROCS_PER_NODE} -t g:${NUM_BACKENDS}"
+    ${MRNET_HOME}/bin/mrnet_topgen -b ${BE_MLIST} -q ${MAX_PROCS_PER_NODE} -r ${MAX_PROCS_PER_NODE} -t g:${NUM_BACKENDS} -o ${TOPOLOGY}
+  else
     # Not enough resources for the MRNet
     let MIN_NPROC=${NUM_BACKENDS}+1
-    echo "`basename $0`: Insufficient resources! (requested ${SLURM_NPROC}, minimum ${MIN_NPROC})"
+    echo "`basename $0`: Insufficient resources! (requested ${RS_NPROC}, minimum ${MIN_NPROC})"
     exit
+  fi
 fi
 
 ### Run the front-end
 export MRNAPP_TOPOLOGY=${TOPOLOGY}
-echo "Executing front-end..."
-echo "${FRONTEND} ${FRONTEND_ARGS}"
-${FRONTEND} ${FRONTEND_ARGS} 
+export MRNAPP_NUM_BE=${NUM_BACKENDS}
+export MRNAPP_BE_CONNECTIONS=attach_BE_connections.tmp
+rel2abs ${MRNAPP_BE_CONNECTIONS} MRNAPP_BE_CONNECTIONS
+
+echo "[`basename $0`] Running front-end..."
+echo "> ${FRONTEND} ${FRONTEND_ARGS}"
+if [ ${MPI_BACKENDS} == 1 ]; then
+  ${FRONTEND} ${FRONTEND_ARGS} &
+else 
+  ${FRONTEND} ${FRONTEND_ARGS}
+fi
+
+### Run the back-ends
+if [ ${MPI_BACKENDS} == 1 ]; then
+  echo "[`basename $0`] Back-ends connection file: ${MRNAPP_BE_CONNECTIONS}"
+  ### Wait for the BE connections file to be written
+  sleep 3
+  while [ ! -f ${MRNAPP_BE_CONNECTIONS} ] || [ `cat ${MRNAPP_BE_CONNECTIONS} | wc -l` -ne ${MRNAPP_NUM_BE} ] ; do
+	sleep 1
+  done
+
+  ### Run back-ends on their assigned resources
+  echo "[`basename $0`] Running back-ends..."
+  echo "> srun -m arbitrary -n ${MRNAPP_NUM_BE} ${BACKEND} ${BACKEND_ARGS}"
+  time srun -n ${MRNAPP_NUM_BE} ${BACKEND} ${BACKEND_ARGS}
+fi
 
 ### Clean resources lists and stuff
-#rm -f ${SLURM_MLIST} ${CP_MLIST} ${BE_MLIST} ${TOPOLOGY}
-#rmdir ${LOGDIR} 
+rm -f ${RS_MLIST} ${CP_MLIST} ${BE_MLIST} ${TOPOLOGY} ${MRNAPP_BE_CONNECTIONS}
+rmdir ${LOGDIR} 

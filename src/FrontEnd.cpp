@@ -103,10 +103,6 @@ int FrontEnd::Init(const char *TopologyFile, const char *BackendExe, const char 
 {
    bool cbrett = false;
 
-
-   setenv("LD_LIBRARY_PATH", "/home/bsc41/bsc41127/apps/MRNET/last/32/lib", 1);
-
-
    /* Start MRNet and backends */
    net = Network::CreateNetworkFE( TopologyFile, BackendExe, BackendArgs );
    if ( net->has_Error() )
@@ -133,7 +129,7 @@ int FrontEnd::Init(const char *TopologyFile, const char *BackendExe, const char 
       return -1;
    }
 
-   return Init();
+   return CommonInit();
 }
 
 
@@ -211,17 +207,16 @@ int FrontEnd::Init(const char *TopologyFile, unsigned int numBackends, const cha
       return -1;
    }
 
-   return Init();
+   return CommonInit();
 }
 
 
 /**
- * No back-ends instantiation that reads the topology from the environment variable MRNAPP_TOPOLOGY.
- * @param numBackends     Number of backends that will be manually spawned.
- * @param ConnectionsFile File where backends connections will be written to.
+ * No back-ends instantiation that reads the topology from the environment variable MRNAPP_TOPOLOGY,
+ * the number of back-ends from MRNAPP_NUM_BE, and the connections file from MRNAPP_BE_CONNECTIONS.
  * @return 0 if the MRNet starts successfully; -1 otherwise.
  */
-int FrontEnd::Init(unsigned int numBackends, const char *ConnectionsFile)
+int FrontEnd::Init()
 {
    char *env_MRNAPP_TOPOLOGY = getenv("MRNAPP_TOPOLOGY");
    if (env_MRNAPP_TOPOLOGY == NULL)
@@ -230,7 +225,21 @@ int FrontEnd::Init(unsigned int numBackends, const char *ConnectionsFile)
       cerr << "[FE] Make it point to the MRNet topology file." << endl;
       return -1;
    }
-   return Init(((const char *)env_MRNAPP_TOPOLOGY), numBackends, ConnectionsFile);
+   char *env_MRNAPP_NUM_BE = getenv("MRNAPP_NUM_BE");
+   if (env_MRNAPP_NUM_BE == NULL)
+   {
+      cerr << "[FE] ERROR: MRNAPP_NUM_BE environment variable is not defined!" << endl;
+      cerr << "[FE] Specify how many back-ends are you going to launch." << endl;
+      return -1;
+   }
+   char *env_MRNAPP_BE_CONNECTIONS = getenv("MRNAPP_BE_CONNECTIONS");
+   if (env_MRNAPP_BE_CONNECTIONS == NULL)
+   {
+      cerr << "[FE] ERROR: MRNAPP_BE_CONNECTIONS environment variable is not defined!" << endl;
+      cerr << "[FE] Make it point to the back-ends connection file." << endl;
+      return -1;
+   }
+   return Init(((const char *)env_MRNAPP_TOPOLOGY), atoi(env_MRNAPP_NUM_BE), ((const char *)env_MRNAPP_BE_CONNECTIONS));
 }
 
 
@@ -238,7 +247,7 @@ int FrontEnd::Init(unsigned int numBackends, const char *ConnectionsFile)
  * Common initialization creates the control stream and sends it to the backends.
  * @return 0 on success; -1 otherwise.
  */
-int FrontEnd::Init()
+int FrontEnd::CommonInit()
 {
    /* A broadcast communicator contains all the back-ends */
    Communicator *comm_BC     = net->get_BroadcastCommunicator( );

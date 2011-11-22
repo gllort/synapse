@@ -14,8 +14,7 @@ int main(int argc, char *argv[])
    FE->LoadProtocol( prot )  ;
 
    /* Execute protocol "PING" */
-   Protocol *p;
-   FE->Dispatch("PING", p);
+   FE->Dispatch("PING");
 
    /* Shutdown the network */
    FE->Shutdown();

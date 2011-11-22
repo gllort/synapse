@@ -33,13 +33,14 @@ class BackEnd : public MRNetApp
 
       int  Init(int argc,  char *argv[]);
       int  Init(int wRank, const char *connectionsFile);
+      int  Init(int wRank);
       int  LoadProtocol(Protocol *prot);
 
       void Loop();
       void Shutdown();
 
    private:
-      int       Init();
+      int       CommonInit();
       NETWORK * Connect(int wRank, const char *connectionsFile);
       int       getParentInfo(const char *file, int rank, char *phost, char *pport, char *prank);
 };

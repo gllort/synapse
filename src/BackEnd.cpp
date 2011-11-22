@@ -58,7 +58,7 @@ int BackEnd::Init (int argc, char *argv[])
    net = NETWORK_CreateNetworkBE( argc, argv );
    assert(net);
 
-   return Init();
+   return CommonInit();
 }
 
 
@@ -75,7 +75,25 @@ int BackEnd::Init (int wRank, const char *connectionsFile)
    net = Connect(wRank, connectionsFile);
    assert(net);
 
-   return Init();
+   return CommonInit();
+}
+
+
+/**
+ * Reads the connection file from the environment variable MRNAPP_BE_CONNECTIONS and starts the network.
+ * @param wRank Backend world rank.
+ * @return 0 if the MRNet starts successfully; -1 otherwise.
+ */
+int BackEnd::Init (int wRank)
+{
+   char *env_MRNAPP_BE_CONNECTIONS = getenv("MRNAPP_BE_CONNECTIONS");
+   if (env_MRNAPP_BE_CONNECTIONS == NULL)
+   {
+      cerr << "[BE " << wRank << "] ERROR: MRNAPP_BE_CONNECTIONS environment variable is not defined!" << endl;
+      cerr << "[BE " << wRank << "] Make it point to the back-ends connection file." << endl;
+      return -1;
+   }
+   return Init(wRank, ((const char *)env_MRNAPP_BE_CONNECTIONS));
 }
 
 
@@ -83,7 +101,7 @@ int BackEnd::Init (int wRank, const char *connectionsFile)
  * Common backend initialization receives the control stream from the frontend.
  * @return 0 on success; -1 otherwise.
  */
-int BackEnd::Init()
+int BackEnd::CommonInit()
 {
    int tag;
    PACKET_new(p);
@@ -207,6 +225,8 @@ void BackEnd::Loop()
    char *prot_id;
    PACKET_new(p);
 
+   if (stControl == NULL) return;
+   
    do
    {
       /* Read the next protocol request */
