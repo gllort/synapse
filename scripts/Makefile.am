@@ -3,6 +3,8 @@ MRNAPP_CONFIG = mrnapp-config
 SOURCEME_SH   = sourceme.sh
 MRNRUN        = mrnrun
 
+EXTRA_DIST = $(MRNAPP_CONFIG).in $(SOURCEME_SH).in $(MRNRUN).in 
+
 bin_SCRIPTS    = $(MRNAPP_CONFIG) $(MRNRUN)
 noinst_SCRIPTS = $(SOURCEME_SH)
 
