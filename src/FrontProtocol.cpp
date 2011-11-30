@@ -78,17 +78,24 @@ STREAM * FrontProtocol::Register_Stream(string filter_name, int up_syncfilter_id
  */
 int FrontProtocol::AnnounceStreams()
 {
-   int tag;
+   int tag, NumberOfStreams=0;
    PacketPtr p;
 
    /* Announce streams to the back-ends */
    unsigned int countACKs = 0;
 
+   /* DEBUG 
+   std::cout << "[FE] FrontProtocol::AnnounceStreams: Sending " << registeredStreams.size() << " streams" << std::endl; */
+
    /* Send the number of streams */
+   NumberOfStreams = registeredStreams.size();
    MRN_STREAM_SEND(mrnApp->stControl, TAG_STREAM, "%d", registeredStreams.size());
-   for (unsigned int i=0; i<registeredStreams.size(); i++)
+
+   for (unsigned int i=0; i<NumberOfStreams; i++)
    {
       STREAM *st = registeredStreams.front();
+      /* DEBUG
+      std::cout << "[FE] FrontProtocol::AnnounceStreams: Publishing stream #" << st->get_Id() << " streams" << std::endl; */
       /* Send a message through every stream */
       MRN_STREAM_SEND(st, TAG_STREAM, "");
       /* Remove the stream from the queue */

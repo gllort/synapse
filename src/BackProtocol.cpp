@@ -70,16 +70,22 @@ int BackProtocol::AnnounceStreams()
    MRN_STREAM_RECV(mrnApp->stControl, &tag, p, TAG_STREAM);
    PACKET_unpack(p, "%d", &countStreams);
 
+   /* DEBUG -- Number of streams 
+   std::cout << "[BE " << WhoAmI() << "] BackProtocol::AnnounceStreams: Receiving " << countStreams << " streams" << std::endl; */
+
    /* Receive them 1 by 1 */
    for (unsigned int i=0; i<countStreams; i++)
    {
       STREAM *newStream;
       MRN_NETWORK_RECV(mrnApp->net, &tag, p, TAG_STREAM, &newStream, true);
+      /* DEBUG
+      std::cout <<  "[BE " << WhoAmI() << "] BackProtocol::AnnounceStreams: Received stream #" << newStream->get_Id() << std::endl; */
       registeredStreams.push(newStream);
    }
    /* Send reception confirmation */
    MRN_STREAM_SEND(mrnApp->stControl, TAG_ACK, "%d", 1);
    PACKET_delete(p);
+
    return 0;
 }
 
