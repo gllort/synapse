@@ -13,6 +13,7 @@ Known values for OPTION are:
   --be-cflags   print pre-processor and compiler flags for the back-ends
   --be-libs     print library linking information for the back-ends
   --cp-cflags   print pre-processor and compiler flags for the filters
+  --rpath       print run-time search path flags for the shared libraries
   --help        display this help and exit
   --version     output version information
 
@@ -58,6 +59,10 @@ while test $# -gt 0; do
 
 	--be-libs)
 		echo -L@sub_PREFIX@/lib -lmrnapp_backend -L@sub_MRNET_LIBSDIR@ @sub_BE_MRNET_LIBS@
+		;;
+
+	--rpath)
+		echo -Wl,-rpath=@sub_PREFIX@/lib -Wl,-rpath=@sub_MRNET_LIBSDIR@
 		;;
 
 	*)
