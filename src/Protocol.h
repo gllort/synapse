@@ -46,6 +46,7 @@ class Protocol
 
       unsigned int WhoAmI();
       unsigned int NumBackEnds();
+      NETWORK * GetNetwork();
 
    protected:
       /* Stores the streams that are created in Setup() using Register_Stream. All streams in this queue

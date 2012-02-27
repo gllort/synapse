@@ -26,3 +26,12 @@ unsigned int Protocol::NumBackEnds()
 }
 
 
+/**
+ * Returns the MRNet Network object where this protocol is loaded.
+ * @return the MRNet Network.
+ */
+NETWORK * Protocol::GetNetwork()
+{
+   return mrnApp->GetNetwork();
+}
+

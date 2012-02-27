@@ -1,4 +1,5 @@
 [+ added, - removed, * changed ]
+   * (27/Feb/2012) Added query function to get the Network object from a loaded Protocol
    * (02/Feb/2012) Added --rpath option in mrnapp-config script 
    * (30/Nov/2011) Added some files (scripts / tests) to EXTRA_DIST
    * (30/Nov/2011) Fixed bug announcing the registered streams to the back-ends
