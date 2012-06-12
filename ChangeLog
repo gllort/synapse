@@ -1,4 +1,6 @@
 [+ added, - removed, * changed ]
+   * (12/Jun/2012) export XPLAT_RESOLVE_HOSTS=1 by default to avoid connection problems in the CPs
+   * (12/Jun/2012) Changed the paths to the MRNet includes for compatibility with version 4
    * (27/Feb/2012) Added query function to get the Network object from a loaded Protocol
    * (02/Feb/2012) Added --rpath option in mrnapp-config script 
    * (30/Nov/2011) Added some files (scripts / tests) to EXTRA_DIST
