@@ -34,7 +34,7 @@ MRNetApp::MRNetApp()
 {
    net       = NULL;
    stControl = NULL;
-   No_BE_Instantiation = false;
+   Remote_Instantiation = false;
 }
 
 
@@ -73,7 +73,7 @@ unsigned int MRNetApp::WhoAmI(void)
    {
       cerr << "ERROR: MRNetApp::WhoAmI() called but Network is not yet initialized!" << endl;
    }
-   return ((isBE() && No_BE_Instantiation) ? MPI_RANK(mrnID) : mrnID);
+   return ((isBE() && Remote_Instantiation) ? MPI_RANK(mrnID) : mrnID);
 }
 
 

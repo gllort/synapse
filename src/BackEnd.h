@@ -33,6 +33,7 @@ class BackEnd : public MRNetApp
 
       int  Init(int argc,  char *argv[]);
       int  Init(int wRank, const char *connectionsFile);
+      int  Init(int wRank, char *parHostname, int parPort, int parRank);
       int  Init(int wRank);
       int  LoadProtocol(Protocol *prot);
 
@@ -42,6 +43,7 @@ class BackEnd : public MRNetApp
    private:
       int       CommonInit();
       NETWORK * Connect(int wRank, const char *connectionsFile);
+      NETWORK * Connect(int wRank, char *parHostname, char *parPort, char *parRank);
       int       getParentInfo(const char *file, int rank, char *phost, char *pport, char *prank);
 };
 

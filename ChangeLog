@@ -1,4 +1,6 @@
 [+ added, - removed, * changed ]
+   * (30/Jan/2013) Separated the Init() and Connect() routines in both parts, 
+   	enabling to create the FE and BE as threads of the same process.
    * (12/Jun/2012) export XPLAT_RESOLVE_HOSTS=1 by default to avoid connection problems in the CPs
    * (12/Jun/2012) Changed the paths to the MRNet includes for compatibility with version 4
    * (27/Feb/2012) Added query function to get the Network object from a loaded Protocol

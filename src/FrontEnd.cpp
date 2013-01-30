@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include "FrontEnd.h"
 #include "FrontProtocol.h"
+#include "PendingConnections.h"
 
 using namespace std;
 using namespace MRN;
@@ -37,7 +38,11 @@ using namespace MRN;
  */
 FrontEnd::FrontEnd()
 {
-   numBackendsConnected = 0;
+   numBackendsConnected   = 0;
+   ConnectionsFileWritten = false;
+   PendingBackends        = 0;
+   InitCompleted          = false;
+   ShutdownCalled         = false; 
 }
 
 
@@ -157,13 +162,17 @@ int FrontEnd::Init(const char *BackendExe, const char **BackendArgs)
  * @param TopologyFile    Topology of the network (not including backends).
  * @param numBackends     Number of backends that will be manually spawned.
  * @param ConnectionsFile File where backends connections will be written to.
+ * @param wait_for_BEs    Optional argument set to true by default. In this case,
+ *                        the front-end waits for the back-ends to connect and 
+ *                        completes the initialization. Otherwise, the user will
+ *                        call to Connect() later to complete the initialization.
  * @return 0 if the MRNet starts successfully; -1 otherwise.
  */
-int FrontEnd::Init(const char *TopologyFile, unsigned int numBackends, const char *ConnectionsFile) 
+int FrontEnd::Init(const char *TopologyFile, unsigned int numBackends, const char *ConnectionsFile, bool wait_for_BEs) 
 {
    bool cbrett = false;
 
-   No_BE_Instantiation = true;
+   Remote_Instantiation = true;
 
    /* Start MRNet without the backends */
    net = Network::CreateNetworkFE( TopologyFile, NULL, NULL );
@@ -201,22 +210,42 @@ int FrontEnd::Init(const char *TopologyFile, unsigned int numBackends, const cha
       return -1;
    }
 
-   if ( WaitForBackends(numBackends, ConnectionsFile) != 0 ) 
+   /* Write connection information to the specified file */
+   PendingConnections BE_connex(ConnectionsFile);
+   if (BE_connex.Write(net, numBackends) != 0)
    {
+      cerr << "[FE] ERROR: Cannot write connections file '" << ConnectionsFile << "'" << endl;
       delete net;
       return -1;
    }
+   else ConnectionsFileWritten = true;
 
-   return CommonInit();
+   /* Do the last part of the initialization right away or return the control to the user 
+    * who will call Connect() manually. 
+    */
+   PendingBackends = numBackends;
+   if (wait_for_BEs)
+   {
+     return Connect();
+   }
+   else
+   {
+     return 0;
+   }
 }
-
 
 /**
  * No back-ends instantiation that reads the topology from the environment variable MRNAPP_TOPOLOGY,
  * the number of back-ends from MRNAPP_NUM_BE, and the connections file from MRNAPP_BE_CONNECTIONS.
+ *
+ * @param wait_for_BEs    Optional argument set to true by default. In this case,
+ *                        the front-end waits for the back-ends to connect and 
+ *                        completes the initialization. Otherwise, the user will
+ *                        call to Connect() later to complete the initialization.
+ *
  * @return 0 if the MRNet starts successfully; -1 otherwise.
  */
-int FrontEnd::Init()
+int FrontEnd::Init(bool wait_for_BEs)
 {
    char *env_MRNAPP_TOPOLOGY = getenv("MRNAPP_TOPOLOGY");
    if (env_MRNAPP_TOPOLOGY == NULL)
@@ -239,7 +268,29 @@ int FrontEnd::Init()
       cerr << "[FE] Make it point to the back-ends connection file." << endl;
       return -1;
    }
-   return Init(((const char *)env_MRNAPP_TOPOLOGY), atoi(env_MRNAPP_NUM_BE), ((const char *)env_MRNAPP_BE_CONNECTIONS));
+   return Init(((const char *)env_MRNAPP_TOPOLOGY), atoi(env_MRNAPP_NUM_BE), ((const char *)env_MRNAPP_BE_CONNECTIONS), wait_for_BEs);
+}
+
+
+/**
+ * In the remote instantiation mode, this is the second part of the Init() function. 
+ * Init() can call this function automatically if specified, otherwise you have to 
+ * call it manually. This was implemented to allow the use-case where front-end and
+ * back-ends are threads of an MPI program and you need to get the control back after
+ * the initialization to distribute the pending connection information among the 
+ * MPI tasks and then start the back-ends. 
+ *
+ * @return 0 on success; -1 otherwise;
+ */
+int FrontEnd::Connect()
+{
+   /* Wait for back-ends to connect */
+   if ( WaitForBackends(PendingBackends) != 0 )  
+   {
+      delete net;
+      return -1;
+   }
+   return CommonInit();
 }
 
 
@@ -262,6 +313,8 @@ int FrontEnd::CommonInit()
       delete net;
       return -1;
    }
+
+   InitCompleted = true;
    return 0;
 }
 
@@ -272,21 +325,8 @@ int FrontEnd::CommonInit()
  * @param ConnectionsFile File where backends connections will be written to.
  * @return 0 on success; -1 otherwise.
  */
-int FrontEnd::WaitForBackends(unsigned int numBackends, const char *ConnectionsFile)
+int FrontEnd::WaitForBackends(unsigned int numBackends) 
 {
-   /* Query Network for topology object */
-   NetworkTopology *netTopology = net->get_NetworkTopology();
-   vector< NetworkTopology::Node * > internalLeaves;
-   netTopology->get_Leaves(internalLeaves);
-   netTopology->print(stdout);
-
-   /* Write connection information to the specified file */
-   if (WriteConnections(internalLeaves, numBackends, ConnectionsFile) != 0)
-   {
-      cerr << "[FE] ERROR: Cannot write connections file '" << ConnectionsFile << "'" << endl;
-      return -1;
-   }
-
    /* Wait for backends to attach */
    unsigned int retries=0;
    unsigned int countWaitFor=numBackends, lastWaitFor=0;
@@ -298,14 +338,14 @@ int FrontEnd::WaitForBackends(unsigned int numBackends, const char *ConnectionsF
       lastWaitFor = countWaitFor;
       retries ++;
       sleep(1);
-   } while ((numBackendsConnected != numBackends) && (retries < MAX_RETRIES));
+   } while ((numBackendsConnected != numBackends) && (retries < MAX_WAIT_RETRIES));
 
    if (numBackendsConnected != numBackends)
    {
       cerr << "[FE] ERROR: Connection time-out! " 
            << numBackends - numBackendsConnected 
            << " backends failed to connect within " 
-           << MAX_RETRIES << " seconds" << endl;
+           << MAX_WAIT_RETRIES << " seconds" << endl;
       return -1;
    }
    else
@@ -315,56 +355,21 @@ int FrontEnd::WaitForBackends(unsigned int numBackends, const char *ConnectionsF
    }
 }
 
-
-/**
- * Writes the backends connections to the specified file.
- * @param internalLeaves  Leaves of the MRNet where the backends will connect to.
- * @param numBackends     Number of backends that have to connect.
- * @param ConnectionsFile File where the backends connections will be written to.
- * @return 0 on success; -1 otherwise.
- */
-int FrontEnd::WriteConnections(
-   vector< NetworkTopology::Node * >& internalLeaves, 
-   unsigned int                       numBackends, 
-   const char                        *ConnectionsFile)
+bool FrontEnd::isUp()
 {
-   FILE *f;
-   if ( (f = fopen(ConnectionsFile, (const char *)"w+")) == NULL ) 
-   {
-      perror("fopen");
-      return -1;
-   }
-     
-   unsigned num_leaves  = internalLeaves.size();
-   unsigned be_per_leaf = numBackends / num_leaves;
-   unsigned curr_leaf   = 0;
-   for(unsigned i=0; (i < numBackends) && (curr_leaf < num_leaves); i++) 
-   {
-       if( i && (i % be_per_leaf == 0) ) 
-       {
-           // select next parent
-           curr_leaf++;
-           if( curr_leaf == num_leaves ) 
-           {
-               // except when there is no "next"
-               curr_leaf--;
-           }
-       }
-       cout << "BE " << i << " will connect to " 
-            << internalLeaves[curr_leaf]->get_HostName().c_str() << ":" 
-            << internalLeaves[curr_leaf]->get_Port()             << ":"
-            << internalLeaves[curr_leaf]->get_Rank()             << endl;
-
-       fprintf(f, "%s %d %d %d\n",
-               internalLeaves[curr_leaf]->get_HostName().c_str(),
-               internalLeaves[curr_leaf]->get_Port(),
-               internalLeaves[curr_leaf]->get_Rank(),
-               i);
-   }
-   fclose(f);
-   return 0;
+  return (InitCompleted) && (!ShutdownCalled);
 }
 
+
+/**
+ * Returns true if the connections file with the back-ends attachment information for the
+ * no-BE instantiation method has already been written.
+ * @return true if the file is written; false otherwise.
+ */
+bool FrontEnd::isConnectionsFileWritten()
+{
+   return ConnectionsFileWritten;
+}
 
 /**
  * Tells the back-ends the next protocol we are going to execute and runs it.
@@ -520,13 +525,18 @@ void FrontEnd::Shutdown()
    int tag;
    PacketPtr p;
 
-   /* Tell back-ends to exit */
-   MRN_STREAM_SEND(stControl, TAG_EXIT, "");
-   /* Wait for ACKs */
-   MRN_STREAM_RECV(stControl, &tag, p, TAG_EXIT);
+   ShutdownCalled = true;
 
-   /* Back-ends are waiting on stControl to be closed */
-   delete stControl;
+   if (InitCompleted) 
+   {
+     /* Tell back-ends to exit */
+     MRN_STREAM_SEND(stControl, TAG_EXIT, "");
+     /* Wait for ACKs */
+     MRN_STREAM_RECV(stControl, &tag, p, TAG_EXIT);
+
+     /* Back-ends are waiting on stControl to be closed */
+     delete stControl;
+   }
 
    cout << "[FE] Exiting!" << endl;
 

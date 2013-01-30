@@ -27,7 +27,7 @@
 #include <vector>
 #include "MRNetApp.h"
 
-#define MAX_RETRIES 60 /* Seconds to wait for the backends to connect before throwing a timeout */
+#define MAX_WAIT_RETRIES 60 /* Seconds to wait for the backends to connect before throwing a timeout */
 
 using std::string;
 using std::vector;
@@ -39,25 +39,28 @@ class FrontEnd : public MRNetApp
 
       FrontEnd();
       bool isFE(); 
-
-      int  Init(const char *TopologyFile, const char *BackendExe,   const char **BackendArgs);
+      int  Init(const char *TopologyFile, const char *BackendExe,   const char **BackendArgs); 
       int  Init(const char *BackendExe,   const char **BackendArgs);
-      int  Init(const char *TopologyFile, unsigned int numBackends, const char *ConnectionsFile);
-      int  Init();
+      int  Init(const char *TopologyFile, unsigned int numBackends, const char *ConnectionsFile, bool wait_for_BEs=true);
+      int  Init(bool wait_for_BEs=true);
+      int  Connect();
       int  ConnectedBackEnds(void);
       int  LoadProtocol(Protocol *prot);
       int  LoadFilter  (string filter_name);
       int  Dispatch    (string protID, Protocol *& prot);
       int  Dispatch    (string protID);
       void Shutdown    (void);
+      bool isConnectionsFileWritten();
+      bool isUp();
 
    private:
+      bool ConnectionsFileWritten;
+      bool InitCompleted;
+      bool ShutdownCalled;
+      unsigned int PendingBackends;
+
       int CommonInit();
-      int WaitForBackends(unsigned int numBackends, const char *ConnectionsFile);
-      int WriteConnections(
-         vector< NetworkTopology::Node * >& internalLeaves,
-         unsigned int                       numBackends,
-         const char                        *ConnectionsFile);
+      int WaitForBackends(unsigned int numBackends); //DEAD_CODE , const char *ConnectionsFile);
 };
 
 #endif /* __FRONTEND_H__ */

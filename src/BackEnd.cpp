@@ -22,12 +22,12 @@
 
 #include <iostream>
 #include <assert.h>
-#include <fstream>
 #include "BackEnd.h"
 #include "BackProtocol.h"
+#include "PendingConnections.h"
+#include <sstream>
 
 using namespace std;
-
 
 /**
  * BackEnd constructor.
@@ -63,18 +63,43 @@ int BackEnd::Init (int argc, char *argv[])
 
 
 /**
- * Starts the network connecting pending backends (No-BE instantiation).
+ * Starts the network connecting pending backends (remote instantiation), 
+ * reading the connection information from the specified file.
  * @param wRank           Backend world rank.
  * @param connectionsFile Backends connections file.
  * @return 0 on success; -1 otherwise.
  */ 
 int BackEnd::Init (int wRank, const char *connectionsFile)
 {
-   No_BE_Instantiation = true;
+   Remote_Instantiation = true;
 
    net = Connect(wRank, connectionsFile);
    assert(net);
 
+   return CommonInit();
+}
+
+/**
+ * Starts the network connecting pending backends (remote instantiation), 
+ * using the specified connection information to attach the back-ends.
+ * This variant was implemented to avoid stressing the filesystem by 
+ * reading the connections file simultaneously by many back-ends.
+ * @param wRank           Backend world rank.
+ * @param parHostname     Parent's hostname.
+ * @param parPort         Parent's port.
+ * @param parRank         Parent's rank.
+ * @return 0 on success; -1 otherwise.
+ */
+int BackEnd::Init (int wRank, char *parHostname, int parPort, int parRank)
+{
+   Remote_Instantiation = true;
+
+   stringstream ss_port, ss_rank;
+   ss_port << parPort;
+   ss_rank << parRank;
+   net = Connect(wRank, parHostname, (char *)ss_port.str().c_str(), (char *)ss_rank.str().c_str());
+   assert(net);
+  
    return CommonInit();
 }
 
@@ -119,7 +144,7 @@ int BackEnd::CommonInit()
 
 
 /**
- * Connects the backend to the network (remote instantiation).
+ * Connects the backend to the network (remote instantiation) reading the connection information from a file.
  * @param wRank           Backend world rank.
  * @param connectionsFile Backends connections file.
  * @return The MRNet Network on success; NULL otherwise.
@@ -127,19 +152,39 @@ int BackEnd::CommonInit()
 NETWORK * BackEnd::Connect(int wRank, const char *connectionsFile)
 {
    /* Get connection information */
-   char myHostname[64], parHostname[64], parPort[10], parRank[10], myRank[10];
+   char parHostname[64], parPort[10], parRank[10];
 
-   while( gethostname(myHostname, 64) == -1 ) {}
-   myHostname[63] = '\0';
-
-   if (getParentInfo(connectionsFile, wRank, parHostname, parPort, parRank) == -1)
+   PendingConnections BE_connex(connectionsFile);
+   if (BE_connex.GetParentInfo(wRank, parHostname, parPort, parRank) == -1) 
    {
-      cerr << "[BE " << wRank << "] failed to parse connections file" << endl;
+      cerr << "[BE " << wRank << "] failed to parse connections file '" << connectionsFile << "'." << endl;
       return NULL;
    }
 
    /* Connect the BE to the network */
-   cout << "BackEnd " << myHostname << "[" << wRank << "] connecting to " 
+   return Connect(wRank, (char *)parHostname, (char *)parPort, (char *)parRank);
+}
+
+/*
+ * Connects the backend to the network (remote instantiation) passing the connection information by parameter.
+ * If your back-ends use this method directly, you will have to externally distribute the connection information, 
+ * for example, through MPI. This is necessary at large-scale, because all back-ends parsing the same file 
+ * simultaneously collapses the file system.
+ * @param wRank           Back-end world rank. 
+ * @param myHostname      Back-end's hostname.
+ * @param parHostname     The parent hostname.
+ * @param parPort         The parent port.
+ * @param parRank         The parent rank.
+ * @return The MRNet Network on success; NULL otherwise.
+ */
+NETWORK * BackEnd::Connect(int wRank, char *parHostname, char *parPort, char *parRank)
+{
+   char myHostname[64], myRank[10];
+   while( gethostname(myHostname, 64) == -1 ) {}
+   myHostname[63] = '\0';
+
+   /* Connect the BE to the network */
+   cout << "BackEnd " << myHostname << "[" << wRank << "] connecting to "
         << parHostname << ":" << parPort << endl;
 
    int   BE_argc = 6;
@@ -155,48 +200,6 @@ NETWORK * BackEnd::Connect(int wRank, const char *connectionsFile)
    net = NETWORK_CreateNetworkBE(BE_argc, BE_argv);
 
    return net;
-}
-
-
-/**
- * Retrieves host, port and rank where a given backend connects from the connections file.
- * @param file Backends connections file.
- * @param rank Backend rank.
- * @return Host, port and rank where this backend will connect and 0 on success; -1 otherwise.
- */
-int BackEnd::getParentInfo(const char *file, int rank, char *phost, char *pport, char *prank)
-{
-   ifstream ifs(file);
-   if( ifs.is_open() ) 
-   {
-      while( ifs.good() ) 
-      {
-         char line[256];
-         ifs.getline( line, 256 );
-
-         char pname[64];
-         int tpport, tprank, trank;
-         int matches = sscanf( line, "%s %d %d %d",
-                               pname, &tpport, &tprank, &trank );
-         if( matches != 4 ) 
-         {
-            fprintf(stderr, "Error while scanning %s\n", file);
-            ifs.close();
-            return -1;
-         }
-         if( trank == rank ) 
-         {
-            sprintf(phost, "%s", pname);
-            sprintf(pport, "%d", tpport);
-            sprintf(prank, "%d", tprank);
-            ifs.close();
-            return 0;
-         }
-      }
-      ifs.close();
-   }
-   // my rank not found :(
-   return -1;
 }
 
 

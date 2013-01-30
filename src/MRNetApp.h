@@ -54,8 +54,8 @@ class MRNetApp
       virtual bool isBE (void) { return false; };
 
    protected:
-      bool No_BE_Instantiation; /* Network instantiation mode; 
-                                   true=no back-ends, false=normal */
+      bool Remote_Instantiation; /* Network instantiation mode; 
+                                    true=no back-ends, false=normal */
 
    private:
       map<string, Protocol*> loadedProtocols; /* Mapping of user-defined protocols that are loaded 

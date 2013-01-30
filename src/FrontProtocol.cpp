@@ -91,7 +91,7 @@ int FrontProtocol::AnnounceStreams()
    NumberOfStreams = registeredStreams.size();
    MRN_STREAM_SEND(mrnApp->stControl, TAG_STREAM, "%d", registeredStreams.size());
 
-   for (unsigned int i=0; i<NumberOfStreams; i++)
+   for (int i=0; i<NumberOfStreams; i++)
    {
       STREAM *st = registeredStreams.front();
       /* DEBUG
