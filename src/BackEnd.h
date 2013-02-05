@@ -25,6 +25,8 @@
 
 #include "MRNetApp.h"
 
+typedef void (*callback_function)(string, Protocol *); 
+
 class BackEnd : public MRNetApp
 {
    public:
@@ -37,6 +39,7 @@ class BackEnd : public MRNetApp
       int  Init(int wRank);
       int  LoadProtocol(Protocol *prot);
 
+      void Loop(callback_function preProtocol, callback_function postProtocol);
       void Loop();
       void Shutdown();
 

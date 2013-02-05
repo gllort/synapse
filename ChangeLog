@@ -1,6 +1,10 @@
 [+ added, - removed, * changed ]
+   * (05/Feb/2013) Added two callback parameters to the BE->Loop() call to invoke a handler
+                   before and after a protocol is run.
+   * (05/Feb/2013) Added an I/O parameter to the FE->Dispatch() call to return 
+                   the rc of the protocol that is run. 
    * (30/Jan/2013) Separated the Init() and Connect() routines in both parts, 
-   	enabling to create the FE and BE as threads of the same process.
+                   enabling to create the FE and BE as threads of the same process.
    * (12/Jun/2012) export XPLAT_RESOLVE_HOSTS=1 by default to avoid connection problems in the CPs
    * (12/Jun/2012) Changed the paths to the MRNet includes for compatibility with version 4
    * (27/Feb/2012) Added query function to get the Network object from a loaded Protocol

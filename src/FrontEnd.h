@@ -47,8 +47,8 @@ class FrontEnd : public MRNetApp
       int  ConnectedBackEnds(void);
       int  LoadProtocol(Protocol *prot);
       int  LoadFilter  (string filter_name);
-      int  Dispatch    (string protID, Protocol *& prot);
-      int  Dispatch    (string protID);
+      int  Dispatch    (string protID, int &status, Protocol *& prot);
+      int  Dispatch    (string protID, int &status);
       void Shutdown    (void);
       bool isConnectionsFileWritten();
       bool isUp();

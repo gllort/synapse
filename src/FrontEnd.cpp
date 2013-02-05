@@ -374,12 +374,13 @@ bool FrontEnd::isConnectionsFileWritten()
 /**
  * Tells the back-ends the next protocol we are going to execute and runs it.
  * @param prot_id The protocol identifier.
+ * @param status  Set to the return code of the protocol that is run.
  * @param prot    Protocol object is returned by reference to retrieve results.
  * @return 0 on success; -1 otherwise.
  */
-int FrontEnd::Dispatch(string prot_id, Protocol *& prot)
+int FrontEnd::Dispatch(string prot_id, int &status, Protocol *& prot)
 {
-   int rc = 0;
+   status = -1;
 
    /* Get the protocol object */
    prot = MRNetApp::FetchProtocol(prot_id);
@@ -394,7 +395,7 @@ int FrontEnd::Dispatch(string prot_id, Protocol *& prot)
       MRN_STREAM_SEND(stControl, TAG_PROT_ID, "%s", prot_id.c_str());
 
       /* Run the front-end side of the protocol */
-      rc = prot->Run();
+      status = prot->Run();
 
       /* Receive ACKs from the back-ends */
       MRN_STREAM_RECV(stControl, &tag, p, TAG_ACK);
@@ -420,12 +421,13 @@ int FrontEnd::Dispatch(string prot_id, Protocol *& prot)
 /**
  * Wrapper for Dispatch(string, Protocol *&) that does not return the protocol by reference.
  * @param prot_id The protocol identifier.
+ * @param status  Set to the return code of the protocol that is run.
  * @return 0 on success; -1 otherwise.
  */
-int FrontEnd::Dispatch(string prot_id)
+int FrontEnd::Dispatch(string prot_id, int &status)
 {
    Protocol *prot = NULL;
-   return Dispatch(prot_id, prot);
+   return Dispatch(prot_id, status, prot);
 }
 
 

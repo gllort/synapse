@@ -220,7 +220,7 @@ int BackEnd::LoadProtocol(Protocol *prot)
  * When the FE dispatches a request, the back-end executes the counterpart
  * for the same protocol. The loop exits when TAG_EXIT is received. 
  */
-void BackEnd::Loop()
+void BackEnd::Loop(callback_function preProtocol, callback_function postProtocol)
 {
    Protocol *prot;
    int next_tag;
@@ -243,7 +243,9 @@ void BackEnd::Loop()
          if (prot != NULL)
          {
             /* Execute the back-end side of the protocol */
+            if (preProtocol  != NULL) preProtocol(prot_id, prot);
             err = prot->Run();
+            if (postProtocol != NULL) postProtocol(prot_id, prot);
          }
          /* Notify success or errors  */
          MRN_STREAM_SEND(stControl, TAG_ACK, "%d", err*(-1)); /* 0 success, +1 error */
@@ -254,6 +256,10 @@ void BackEnd::Loop()
    Shutdown();
 }
 
+void BackEnd::Loop()
+{
+  Loop(NULL, NULL);
+}
 
 /**
  * Shutdown the MRNet.
