@@ -1,6 +1,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <string.h>
 #include "PendingConnections.h"
 
 using std::cerr;
@@ -131,13 +133,14 @@ int PendingConnections::ParseForMPIDistribution(int world_size, char *&sendbuf, 
 
   while(keep_retrying > 0)
   {
-
-    int rbytes = 0, nbytes = 0;
+    int rbytes = 0;
     int offset = 0, ntasks = 0;
-    char *line = NULL;
-    FILE *fd   = NULL;
+    string line;
+    ifstream fd;
 
-    if ((fd = fopen(ConnectionsFile.c_str(), "r")) == NULL)
+    fd.open(ConnectionsFile.c_str());
+
+    if (fd == NULL)
     {
       cerr << "PendingConnections::ParseForMPIDistribution: ERROR: opening connections file '" << ConnectionsFile << " '" << endl;
     }
@@ -148,27 +151,28 @@ int PendingConnections::ParseForMPIDistribution(int world_size, char *&sendbuf, 
       displs   = (int *)malloc(world_size * sizeof(int));
 
       /* Read connections file line by line */
-      while ((rbytes = getline(&line, (size_t *)&nbytes, fd)) != -1)
+      while (getline(fd, line))
       {
-        /* DEBUG 
-        fprintf(stderr, "rbytes=%d strlen=%d line=%s", rbytes, strlen(line), line); */
+        rbytes = line.size();
 
         /* Store the lines in a memory-consecutive buffer */
         sendbuf = (char *)realloc(sendbuf, offset+rbytes+1);
-        strncpy(&(sendbuf[offset]), line, rbytes+1);
+        strcpy(&(sendbuf[offset]), line.c_str());
 
         /* Store the length and offset of every line */
         sendcnts[ntasks] = rbytes + 1; /* strlen(line) + '\0' */
         displs[ntasks]   = offset;
 
         /* DEBUG
-        fprintf(stderr, "sendcnts=%d displs=%d data=%s", sendcnts[ntasks], displs[ntasks], &sendbuf[offset]); */
+        fprintf(stderr, "sendcnts=%d displs=%d data=%s", 
+          sendcnts[ntasks], 
+          displs[ntasks], 
+          &sendbuf[offset]); */
 
         offset += rbytes+1;
         ntasks ++;
-        free (line); line = NULL;
       }
-      fclose(fd);
+      fd.close();
 
       /* Check there's the same number of MPI tasks than BE's */
       if (ntasks == world_size) 
@@ -183,9 +187,12 @@ int PendingConnections::ParseForMPIDistribution(int world_size, char *&sendbuf, 
         free(sendbuf);
         free(sendcnts);
         free(displs);
+        sendbuf  = NULL;
+        sendcnts = NULL;
+        displs   = NULL;
       }
     }
-    cerr << "Did the front-end finish writing the connections file? Retrying in " << IDLE_BETWEEN_TRIES << "second(s)..." << endl;
+    cerr << "Did the front-end finish writing the connections file? Retrying in " << IDLE_BETWEEN_TRIES << " second(s)..." << endl;
     sleep(IDLE_BETWEEN_TRIES);
     keep_retrying --;
   }

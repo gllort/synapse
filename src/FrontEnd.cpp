@@ -304,7 +304,11 @@ int FrontEnd::CommonInit()
    Communicator *comm_BC     = net->get_BroadcastCommunicator( );
  
    /* Create and announce control stream */
+#if defined(CONTROL_STREAM_BLOCKING)
    stControl = net->new_Stream( comm_BC, TFILTER_SUM, SFILTER_WAITFORALL );
+#else
+   stControl = net->new_Stream( comm_BC, TFILTER_NULL, SFILTER_DONTWAIT );
+#endif
 
    if (( stControl->send( TAG_STREAM, "" ) == -1 ) || ( stControl->flush() == -1 )) 
    {
@@ -398,8 +402,20 @@ int FrontEnd::Dispatch(string prot_id, int &status, Protocol *& prot)
       status = prot->Run();
 
       /* Receive ACKs from the back-ends */
+#if defined(CONTROL_STREAM_BLOCKING)
       MRN_STREAM_RECV(stControl, &tag, p, TAG_ACK);
       p->unpack("%d", &countErr);
+#else
+      for (int i=0; i<stControl->size(); i++)
+      {
+        int x = 0;
+        MRN_STREAM_RECV(stControl, &tag, p, TAG_ACK);
+        p->unpack("%d", &x);
+        countErr += x;
+      }
+#endif
+      /* DEBUG 
+      std::cout << "FrontEnd::Dispatch: Received ACK's countErr=" << countErr << std::endl; */
       if (countErr != 0)
       {
          /* Some BEs had errors! */
@@ -489,7 +505,7 @@ int FrontEnd::LoadFilter(string filter_name)
             int filter_id = net->load_FilterFunc( filter_so.c_str(), filter_func.c_str() );
             if (filter_id == -1)
             {
-               cerr << "[FE] Error loading filter " << filter_so << endl;
+               cerr << "[FE] Error loading filter " << filter_so << ": Function '" << filter_func.c_str() << "' is present in the filter object?" << endl;
                return -1;
             }
             else
@@ -533,9 +549,16 @@ void FrontEnd::Shutdown()
    {
      /* Tell back-ends to exit */
      MRN_STREAM_SEND(stControl, TAG_EXIT, "");
-     /* Wait for ACKs */
-     MRN_STREAM_RECV(stControl, &tag, p, TAG_EXIT);
 
+     /* Wait for ACKs */
+#if defined(CONTROL_STREAM_BLOCKING)
+     MRN_STREAM_RECV(stControl, &tag, p, TAG_EXIT);
+#else
+     for (int i=0; i<stControl->size(); i++)
+     {
+       MRN_STREAM_RECV(stControl, &tag, p, TAG_EXIT);
+     }
+#endif
      /* Back-ends are waiting on stControl to be closed */
      delete stControl;
    }

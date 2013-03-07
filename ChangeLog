@@ -1,4 +1,7 @@
 [+ added, - removed, * changed ]
+   * (07/Mar/2013) Applied workaround for a problem detected in the control stream (the root does not receive all ACKs).
+                   Changed the built-in filter TFILTER_SUM and SWAITFORALL into TFILTER_NULL and SDONTWAIT, and then receiving from all back-ends.
+                   This behavior can be switched with the define CONTROL_STREAM_BLOCKING in MRNetApp.h.
    * (05/Feb/2013) Added two callback parameters to the BE->Loop() call to invoke a handler
                    before and after a protocol is run.
    * (05/Feb/2013) Added an I/O parameter to the FE->Dispatch() call to return 

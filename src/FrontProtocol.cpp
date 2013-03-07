@@ -102,8 +102,19 @@ int FrontProtocol::AnnounceStreams()
       registeredStreams.pop();
    }
    /* Read ACKs */
+#if defined(CONTROL_STREAM_BLOCKING)
    MRN_STREAM_RECV(mrnApp->stControl, &tag, p, TAG_ACK);
    p->unpack("%d", &countACKs);
+#else
+   for (int i=0; i<mrnApp->stControl->size(); i++)
+   {
+     int x = 0;
+     MRN_STREAM_RECV(mrnApp->stControl, &tag, p, TAG_ACK);
+     p->unpack("%d", &x);
+     countACKs += x;
+   }
+#endif
+
    if (countACKs != mrnApp->stControl->size())
    {
       cerr << "[FE] Error announcing streams! (" << countACKs << " ACKs received, expected " << mrnApp->stControl->size() << ")" << endl;

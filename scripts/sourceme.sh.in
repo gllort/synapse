@@ -2,6 +2,7 @@
 
 export MRNAPP_HOME=@sub_MRNAPP_HOME@
 export MRNETAPP_HOME=@sub_MRNAPP_HOME@
+export MRNAPP_FILTER_PATH=@sub_MRNAPP_HOME@/lib
 export MRNET_HOME=@sub_MRNET_HOME@
 export MRNET_COMM_PATH=${MRNET_HOME}/bin/mrnet_commnode
 export MRNET_TOPGEN=${MRNET_HOME}/bin/mrnet_topgen
