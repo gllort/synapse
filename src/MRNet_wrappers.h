@@ -63,7 +63,7 @@ extern "C" {
 {                                                                              \
    vector_t *nodes = new_empty_vector_t();                                     \
    NetworkTopology_get_BackEndNodes(Network_get_NetworkTopology(net), nodes);  \
-   num_be = vector->size;                                                      \
+   num_be = nodes->size;                                                       \
    delete_vector_t(nodes);                                                     \
 }
 #else
