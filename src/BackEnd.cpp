@@ -282,7 +282,8 @@ void BackEnd::Shutdown()
 
    /* FE delete of the net will cause us to exit, wait for it */
    NETWORK_waitfor_ShutDown(net);
-   NETWORK_delete(net);
+
+   // NETWORK_delete(net); /* Freeing the network in the BE's crashes due to double-free! */
 
    sleep(3);
 }

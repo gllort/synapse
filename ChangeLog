@@ -1,4 +1,7 @@
 [+ added, - removed, * changed ]
+   * (16/Jul/2013) Upgraded version to v1.01.
+   * (16/Jul/2013) Removed delete of the network at BackEnd::Shutdown() that caused double-free corruption.
+   * (16/Jul/2013) Added boolean argument to WhoAmI() to get either the logical ID of the back-ends (0..N-1) or the real network ID (1000000..1000000+N-1).
    * (07/Mar/2013) Applied workaround for a problem detected in the control stream (the root does not receive all ACKs).
                    Changed the built-in filter TFILTER_SUM and SWAITFORALL into TFILTER_NULL and SDONTWAIT, and then receiving from all back-ends.
                    This behavior can be switched with the define CONTROL_STREAM_BLOCKING in MRNetApp.h.

@@ -60,9 +60,12 @@ STREAM * MRNetApp::GetControlStream()
 
 /**
  * Returns the rank of the current MRNet process.
+ * @param return_network_id False by default, returns the logical ID for the remote back-ends (range from 0 to N). 
+                            When set to true, returns the real ID for the backends in the network topology 
+                            (range from 1000000 to 1000000+N)
  * @return the MRNet process rank.
  */
-unsigned int MRNetApp::WhoAmI(void)
+unsigned int MRNetApp::WhoAmI(bool return_network_id)
 {
    unsigned int mrnID = 0;
    if (net != NULL)
@@ -73,7 +76,10 @@ unsigned int MRNetApp::WhoAmI(void)
    {
       cerr << "ERROR: MRNetApp::WhoAmI() called but Network is not yet initialized!" << endl;
    }
-   return ((isBE() && Remote_Instantiation) ? MPI_RANK(mrnID) : mrnID);
+   if (return_network_id) 
+     return mrnID;
+   else
+     return ((isBE() && Remote_Instantiation) ? MPI_RANK(mrnID) : mrnID);
 }
 
 

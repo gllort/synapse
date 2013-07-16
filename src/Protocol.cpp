@@ -10,9 +10,9 @@ Protocol::Protocol()
  * Returns the back-end identifier.
  * @return the MRNetID of the back-end that has this protocol loaded.
  */
-unsigned int Protocol::WhoAmI()
+unsigned int Protocol::WhoAmI(bool return_network_id)
 {
-   return mrnApp->WhoAmI();
+   return mrnApp->WhoAmI(return_network_id);
 }
 
 

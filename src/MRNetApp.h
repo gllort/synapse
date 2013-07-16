@@ -52,7 +52,7 @@ class MRNetApp
       int       LoadProtocol     (Protocol *prot);
       Protocol* FetchProtocol    (string prot_id);
       unsigned int NumBackEnds   (void);
-      unsigned int WhoAmI        (void);
+      unsigned int WhoAmI        (bool return_network_id=false);
       virtual bool isFE (void) { return false; };
       virtual bool isBE (void) { return false; };
 

@@ -44,7 +44,7 @@ class Protocol
       virtual void   Setup(void) { }; /* Redefine this to register new streams using calls to Register_Stream */
       virtual int    Run  (void) = 0;  /* Implements the protocol to execute                                   */
 
-      unsigned int WhoAmI();
+      unsigned int WhoAmI(bool return_network_id=false);
       unsigned int NumBackEnds();
       NETWORK * GetNetwork();
 
