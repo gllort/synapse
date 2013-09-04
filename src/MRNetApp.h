@@ -31,7 +31,7 @@
 #define MPI_RANK(r)   (r-1000000)
 
 /* Undef this to make the control stream non-blocking (not scalable, for debugging purposes!) */
-//#define CONTROL_STREAM_BLOCKING 
+#define CONTROL_STREAM_BLOCKING 
 
 using std::map;
 using std::string;
