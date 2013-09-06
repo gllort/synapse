@@ -1,7 +1,5 @@
 #!/bin/sh
 
-export PATH=/home/bsc41/bsc41127/apps/AUTOTOOLS/bin:$PATH
-
 libtoolize --automake --force --copy \
 && aclocal -I config \
 && autoheader \

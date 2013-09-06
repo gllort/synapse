@@ -1,4 +1,5 @@
 [+ added, - removed, * changed ]
+   * (06/Sep/2013) Fixed bug in the bootstrap script (pointing to wrong paths)
    * (04/Sep/2013) Set the control stream to blocking behavior by default
    * (16/Jul/2013) Upgraded version to v1.01.
    * (16/Jul/2013) Removed delete of the network at BackEnd::Shutdown() that caused double-free corruption.
