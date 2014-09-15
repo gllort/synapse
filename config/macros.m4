@@ -299,7 +299,7 @@ dnl		MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I${MRNET_HOME}/src/src -Dos_linux"
 dnl		AC_SUBST(MRNET_CXXFLAGS)
 dnl		dnl End hack
 
-		MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I${MRNET_LIBSDIR}/mrnet-4.0.0/include -I${MRNET_LIBSDIR}/xplat-4.0.0/include"
+		MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I${MRNET_INCLUDES}/mrnet -I${MRNET_LIBSDIR}/mrnet-4.0.0/include -I${MRNET_LIBSDIR}/xplat-4.0.0/include"
 
 		AC_MSG_CHECKING([for lightweight libraries for the back-ends])
 		AC_ARG_WITH(lightweight,
