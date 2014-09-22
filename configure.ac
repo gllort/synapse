@@ -42,7 +42,9 @@ AM_PROG_CC_C_O
 #    Checks for libraries    #
 ##############################
 AX_PROG_MRNET
-
+if test "x${MRNET_INSTALLED}" = "xno"; then
+  AC_ERROR([MRNET libraries not found in your system. Try using '--with-mrnet'])
+fi
 BOOST_REQUIRE([1.36],
               [AC_MSG_ERROR([This package requires the Boost Shared Pointer, but
                              it was not found in your system])])
