@@ -36,7 +36,7 @@ $(SOURCEME_SH): $(SOURCEME_SH).in
     
 install-data-hook:
 	chmod u+x ${bindir}/$(MRNAPP_CONFIG)
-	$(mkdir_p) $(prefix)/etc
+	$(MKDIR_P) $(prefix)/etc
 	cp $(SOURCEME_SH) $(prefix)/etc
 
 clean-local:

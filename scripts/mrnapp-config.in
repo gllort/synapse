@@ -7,15 +7,17 @@ Usage: mrnapp-config [OPTION]
 
 Known values for OPTION are:
 
-  --prefix      print libMRNetApp installation directory
-  --fe-cflags   print pre-processor and compiler flags for the front-end
-  --fe-libs     print library linking information for the front-end
-  --be-cflags   print pre-processor and compiler flags for the back-ends
-  --be-libs     print library linking information for the back-ends
-  --cp-cflags   print pre-processor and compiler flags for the filters
-  --rpath       print run-time search path flags for the shared libraries
-  --help        display this help and exit
-  --version     output version information
+  --prefix        print libMRNetApp installation directory
+  --fe-cflags     print pre-processor and compiler flags for the front-end
+  --fe-libs       print library linking information for the front-end
+  --be-cflags     print pre-processor and compiler flags for the back-ends
+  --be-libs       print library linking information for the back-ends
+  --cp-cflags     print pre-processor and compiler flags for the filters
+  --libdir        print the library directory
+  --rpath         print run-time search path flags for the shared libraries
+  --libtool-rpath print the rpath flags used by libtool
+  --help          display this help and exit
+  --version       output version information
 
 EOF
 
@@ -49,10 +51,10 @@ while test $# -gt 0; do
 		echo -I@sub_PREFIX@/include @sub_MRNET_CXXFLAGS@ @sub_LIGHTWEIGHT@ -Wl,-E -DBACKEND
 		;;
 
-    --cp-cflags)
-        echo -fPIC -shared -rdynamic -I@sub_PREFIX@/include @sub_MRNET_CXXFLAGS@ -DFILTER
-        ;;
-
+	--cp-cflags)
+		echo -fPIC -shared -rdynamic -I@sub_PREFIX@/include @sub_MRNET_CXXFLAGS@ -DFILTER
+		;;
+	
 	--fe-libs)
 		echo -L@sub_PREFIX@/lib -lmrnapp_frontend -L@sub_MRNET_LIBSDIR@ @sub_FE_MRNET_LIBS@
 		;;
@@ -61,9 +63,17 @@ while test $# -gt 0; do
 		echo -L@sub_PREFIX@/lib -lmrnapp_backend -L@sub_MRNET_LIBSDIR@ @sub_BE_MRNET_LIBS@
 		;;
 
+	--libdir)
+		echo @sub_PREFIX@/lib
+		;;
+
 	--rpath)
 		echo -Wl,-rpath=@sub_PREFIX@/lib -Wl,-rpath=@sub_MRNET_LIBSDIR@
 		;;
+		
+	--libtool-rpath)
+	  echo -L@sub_MRNET_LIBSDIR@ -R@sub_MRNET_LIBSDIR@ -L@sub_PREFIX@/lib -R@sub_PREFIX@/lib
+	  ;;
 
 	*)
 		usage

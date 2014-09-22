@@ -1,4 +1,7 @@
 [+ added, - removed, * changed ]
+   * (22/Sep/2014) Version upgrade to 1.0.2
+   * (22/Sep/2014) Added '--libdir' and '--libtool-rpath' to the mrnapp-config script. 
+   * (22/Sep/2014) Added 'BOOST_CPPFLAGS' to 'libBackEnd' and 'libFrontEnd' CXXFLAGS.
    * (15/Sep/2014) Fixed MRNet include check in the building system	
    * (06/Sep/2013) Fixed missing files in the distribution
    * (06/Sep/2013) Fixed bug in the bootstrap script (pointing to wrong paths)

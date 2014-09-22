@@ -6,7 +6,7 @@
 #########################
 
 # Initialize autoconf & define package name, version and bug-report address 
-AC_INIT(MRNetApp Library, 1.01, tools@bsc.es)
+AC_INIT(MRNetApp Library, 1.02, tools@bsc.es)
 
 # GNU Autotools intermediate files are stored in the following directory
 AC_CONFIG_AUX_DIR(config)
@@ -16,7 +16,7 @@ AC_CANONICAL_SYSTEM
 
 # Initialize automake
 AM_INIT_AUTOMAKE
-AM_PROG_MKDIR_P
+AC_PROG_MKDIR_P
 
 # Specify the output configuration header file
 AM_CONFIG_HEADER(config.h)
@@ -42,6 +42,10 @@ AM_PROG_CC_C_O
 #    Checks for libraries    #
 ##############################
 AX_PROG_MRNET
+
+BOOST_REQUIRE([1.36],
+              [AC_MSG_ERROR([This package requires the Boost Shared Pointer, but
+                             it was not found in your system])])
 
 #############################
 #    Checks for headers     #

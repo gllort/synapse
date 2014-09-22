@@ -8,7 +8,7 @@ libmrnapp_frontend_la_SOURCES =          \
   FrontProtocol.cpp      FrontProtocol.h \
   Protocol.cpp           Protocol.h      \
   PendingConnections.cpp PendingConnections.h
-libmrnapp_frontend_la_CXXFLAGS  = -g -O2 -Wall -Wl,-E @MRNET_CXXFLAGS@ 
+libmrnapp_frontend_la_CXXFLAGS  = -g -O2 -Wall -Wl,-E @MRNET_CXXFLAGS@ @BOOST_CPPFLAGS@
 libmrnapp_frontend_la_LDFLAGS   = -L@MRNET_LIBSDIR@ -R @MRNET_LIBSDIR@ @MRNET_LIBS@ 
 
 libmrnapp_backend_la_SOURCES  =          \
@@ -17,7 +17,7 @@ libmrnapp_backend_la_SOURCES  =          \
   BackProtocol.cpp       BackProtocol.h  \
   Protocol.cpp           Protocol.h      \
   PendingConnections.cpp PendingConnections.h
-libmrnapp_backend_la_CXXFLAGS  = -g -O2 -Wall -Wl,-E @MRNET_CXXFLAGS@ 
+libmrnapp_backend_la_CXXFLAGS  = -g -O2 -Wall -Wl,-E @MRNET_CXXFLAGS@ @BOOST_CPPFLAGS@
 libmrnapp_backend_la_LDFLAGS   = -L@MRNET_LIBSDIR@ -R @MRNET_LIBSDIR@
 if USE_LIGHTWEIGHT
 libmrnapp_backend_la_CXXFLAGS += -DLIGHTWEIGHT
