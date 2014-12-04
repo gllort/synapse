@@ -16,6 +16,7 @@ Known values for OPTION are:
   --libdir        print the library directory
   --rpath         print run-time search path flags for the shared libraries
   --libtool-rpath print the rpath flags used by libtool
+  --mrnet         print MRNet installation directory
   --help          display this help and exit
   --version       output version information
 
@@ -73,6 +74,10 @@ while test $# -gt 0; do
 		
 	--libtool-rpath)
 	  echo -L@sub_MRNET_LIBSDIR@ -R@sub_MRNET_LIBSDIR@ -L@sub_PREFIX@/lib -R@sub_PREFIX@/lib
+	  ;;
+
+	--mrnet)
+	  echo @sub_MRNET_PREFIX@ 
 	  ;;
 
 	*)

@@ -11,6 +11,7 @@ noinst_SCRIPTS = $(SOURCEME_SH)
 $(MRNAPP_CONFIG): $(MRNAPP_CONFIG).in
 	cp $^ $@
 	$(top_srcdir)/substitute $(SED) "@sub_PREFIX@" "${prefix}" $@
+	$(top_srcdir)/substitute $(SED) "@sub_MRNET_PREFIX@" "@MRNET_HOME@" $@
 	$(top_srcdir)/substitute $(SED) "@sub_VERSION@" "${VERSION}" $@
 	$(top_srcdir)/substitute $(SED) "@sub_MRNET_CXXFLAGS@" "@MRNET_CXXFLAGS@" $@
 	$(top_srcdir)/substitute $(SED) "@sub_MRNET_LIBSDIR@" "@MRNET_LIBSDIR@" $@

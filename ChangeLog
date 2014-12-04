@@ -1,4 +1,5 @@
 [+ added, - removed, * changed ]
+   * (04/Dec/2014) Added parameter --mrnet to mrnapp-config to query the installation path for MRNet
    * (22/Sep/2014) Version upgrade to 1.0.2
    * (22/Sep/2014) Added configuration error when MRNet is not found in the system
    * (22/Sep/2014) Added 'boost.m4' to check the existence of Boost Shared Ptr header
