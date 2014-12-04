@@ -1,5 +1,6 @@
 [+ added, - removed, * changed ]
    * (04/Dec/2014) Added parameter --mrnet to mrnapp-config to query the installation path for MRNet
+                   Updated obsolete macro AM_CONFIG_HEADER to AC_CONFIG_HEADERS
                    Version upgrade to 1.0.3
    * (22/Sep/2014) Version upgrade to 1.0.2
    * (22/Sep/2014) Added configuration error when MRNet is not found in the system

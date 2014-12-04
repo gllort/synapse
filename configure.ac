@@ -19,7 +19,7 @@ AM_INIT_AUTOMAKE
 AC_PROG_MKDIR_P
 
 # Specify the output configuration header file
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 # Search for libtool support
 AC_LIBTOOL_DLOPEN
