@@ -1,4 +1,5 @@
 [+ added, - removed, * changed ]
+   * (08/Jan/2015) Added Barrier() call to FrontProtocol and BackProtocol to synchronize FE and BE processes inside a protocol
    * (04/Dec/2014) Added parameter --mrnet to mrnapp-config to query the installation path for MRNet
                    Updated obsolete macro AM_CONFIG_HEADER to AC_CONFIG_HEADERS
                    Version upgrade to 1.0.3

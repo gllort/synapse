@@ -30,6 +30,7 @@ class BackProtocol : public Protocol
    public:
       void Init(MRNetApp *BE);
       void Register_Stream(STREAM *& new_stream);
+      int Barrier();
 
    protected:
       int AnnounceStreams();

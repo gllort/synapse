@@ -123,3 +123,36 @@ int FrontProtocol::AnnounceStreams()
    return 0;
 }
 
+int FrontProtocol::Barrier()
+{
+   int tag;
+   PacketPtr p;
+   unsigned int countACKs = 0;
+
+#if defined(CONTROL_STREAM_BLOCKING)
+   cerr << "[FE] Entering barrier..." << endl;
+   MRN_STREAM_RECV(mrnApp->stControl, &tag, p, TAG_ACK);
+   p->unpack("%d", &countACKs);
+   cerr << "[FE] Barrier received " << countACKs << " ACK's..." << endl;
+#else
+   for (int i=0; i<mrnApp->stControl->size(); i++)
+   {
+     int x = 0;
+     MRN_STREAM_RECV(mrnApp->stControl, &tag, p, TAG_ACK);
+     p->unpack("%d", &x);
+     countACKs += x;
+   }
+#endif
+
+   cerr << "[FE] Barrier broadcasting " << countACKs << " ACK's..." << endl;
+   MRN_STREAM_SEND(mrnApp->stControl, TAG_ACK, "%d", countACKs);
+
+   if (countACKs != mrnApp->stControl->size())
+   {
+      cerr << "[FE] ERROR: FrontProtocol::Barrier: " << countACKs << " ACKs received, expected " << mrnApp->stControl->size() << endl;
+      return -1;
+   }
+   cerr << "[FE] Exiting barrier" << endl;
+   return 0;
+}
+

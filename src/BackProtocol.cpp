@@ -89,3 +89,20 @@ int BackProtocol::AnnounceStreams()
    return 0;
 }
 
+int BackProtocol::Barrier()
+{
+  int tag;
+  PACKET_new(p);
+  unsigned int countACKs = 0;
+
+  MRN_STREAM_SEND(mrnApp->stControl, TAG_ACK, "%d", 1);
+  MRN_STREAM_RECV(mrnApp->stControl, &tag, p, TAG_ACK);
+  PACKET_unpack(p, "%d", &countACKs);
+ 
+  if (countACKs != mrnApp->NumBackEnds())
+  {
+      cerr << "[BE] " << WhoAmI() << "] ERROR: BackProtocol::Barrier: " << countACKs << " ACKs received, expected " << mrnApp->NumBackEnds() << endl;
+      return -1;
+  }
+  return 0;
+}

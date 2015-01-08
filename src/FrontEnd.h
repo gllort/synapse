@@ -27,7 +27,7 @@
 #include <vector>
 #include "MRNetApp.h"
 
-#define MAX_WAIT_RETRIES 60 /* Seconds to wait for the backends to connect before throwing a timeout */
+#define MAX_WAIT_RETRIES 300 /* Seconds to wait for the backends to connect before throwing a timeout */
 
 using std::string;
 using std::vector;

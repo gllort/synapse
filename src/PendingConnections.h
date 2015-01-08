@@ -4,8 +4,8 @@
 #include <string>
 #include "MRNet_wrappers.h"
 
-#define MAX_PARSE_RETRIES  10
-#define IDLE_BETWEEN_TRIES 1
+#define MAX_PARSE_RETRIES  100
+#define IDLE_BETWEEN_TRIES 10
 
 using std::string;
 
