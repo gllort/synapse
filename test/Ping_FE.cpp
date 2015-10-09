@@ -1,11 +1,14 @@
 #include <iostream>
 #include "Ping_FE.h"
 
+using std::cout;
+using std::endl;
+
 /** 
  * In the Setup function we have to register all the streams we want to use for this protocol. 
- * When the function returns, all streams pushed to the registeredStreams queue are automatically
- * published to the back-ends. The Register_Stream is a wrapper to net->new_Stream() that 
- * creates a new stream in the FE and pushes it to the queue.
+ * The Register_Stream is a wrapper to net->new_Stream() that creates a new stream in the FE 
+ * and pushes it to the queue. When the function returns, all streams pushed to the registeredStreams 
+ * queue are automatically published to the back-ends. 
  */
 void Ping::Setup()
 {

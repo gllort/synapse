@@ -1,10 +1,5 @@
 
-SUBDIRS=src scripts 
+SUBDIRS=src scripts test doc
 
-EXTRA_DIST=test substitute substitute-all
+EXTRA_DIST=substitute substitute-all
 
-test:
-	cd test ; make
-
-clean-local:
-	cd test ; make clean

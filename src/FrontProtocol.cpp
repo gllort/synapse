@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -24,7 +24,9 @@
 #include "FrontProtocol.h"
 #include "FrontEnd.h"
 
-using namespace std;
+using std::cerr;
+using std::endl;
+using namespace Synapse;
 
 
 /**

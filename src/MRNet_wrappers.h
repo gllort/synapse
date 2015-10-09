@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -25,7 +25,6 @@
 
 #include <stdlib.h>
 #include "MRNet_tags.h"
-
 
 /**
  * The following macros wrap many of the MRNet types and some API calls so that we
@@ -96,8 +95,8 @@ using namespace MRN;
    num_be = nodes.size();                               \
 }
 /* Sends a message to the subset of BEs in the stream specified in be_list */
-# define MRN_STREAM_SEND_P2P(stream, be_list, tag, format, args...)    \
-{                                                                      \
+# define MRN_STREAM_SEND_P2P(stream, be_list, tag, format, args...)        \
+{                                                                          \
 	PacketPtr p( new Packet(stream->get_Id(), tag, format, ## args) ); \
 	p->set_Destinations (&be_list[0], be_list.size());                 \
 	stream->send( p );                                                 \
@@ -112,92 +111,95 @@ using namespace MRN;
 /**
  * Receive from a specific stream (blocking) 
  */
-#define MRN_STREAM_RECV(stream, tag, data, expected)                                 \
-{                                                                                    \
-	int rc;                                                                          \
-	rc = STREAM_recv(stream, tag, data, true);                                       \
-	if (rc == -1)                                                                    \
-	{                                                                                \
+#define MRN_STREAM_RECV(stream, tag, data, expected)                                         \
+{                                                                                            \
+	int rc;                                                                              \
+	rc = STREAM_recv(stream, tag, data, true);                                           \
+	if (rc == -1)                                                                        \
+	{                                                                                    \
 		PRINT_WHERE;                                                                 \
 		fprintf(stderr, "stream::recv() failed (stream_id=%d).",                     \
-			STREAM_get_Id(stream));                                                  \
+			STREAM_get_Id(stream));                                              \
 		exit(1);                                                                     \
-	}                                                                                \
-	if ((expected != TAG_ANY) && (*tag != expected))                                 \
-	{                                                                                \
+	}                                                                                    \
+	if ((static_cast<Tag>(expected) != static_cast<Tag>(TAG_ANY)) &&                     \
+            (static_cast<Tag>(*tag)     != static_cast<Tag>(expected)))                      \
+	{                                                                                    \
 		PRINT_WHERE;                                                                 \
 		fprintf(stderr, "stream::recv() tag received %d, but expected %d (%s)\n",    \
-			*tag, expected, #expected);                                              \
-	}                                                                                \
+			*tag, expected, #expected);                                          \
+	}                                                                                    \
 }
 
 
 /**
  * Receive from a specific stream (non-blocking) 
  */
-#define MRN_STREAM_RECV_NONBLOCKING(stream, tag, data, expected)                     \
-{                                                                                    \
-	int rc;                                                                          \
-	while ((rc = STREAM_recv(stream, tag, data, false)) == 0)                        \
+#define MRN_STREAM_RECV_NONBLOCKING(stream, tag, data, expected)                             \
+{                                                                                            \
+	int rc;                                                                              \
+	while ((rc = STREAM_recv(stream, tag, data, false)) == 0)                            \
 		usleep(500000);                                                              \
-	if (rc == -1)                                                                    \
-	{                                                                                \
+	if (rc == -1)                                                                        \
+	{                                                                                    \
 		PRINT_WHERE;                                                                 \
 		fprintf(stderr, "stream::recv() failed (stream_id=%d).",                     \
-			STREAM_get_Id(stream));                                                  \
+			STREAM_get_Id(stream));                                              \
 		exit(1);                                                                     \
-	}                                                                                \
-	if ((expected != TAG_ANY) && (*tag != expected))                                 \
-	{                                                                                \
+	}                                                                                    \
+	if ((static_cast<Tag>(expected) != static_cast<Tag>(TAG_ANY)) &&                     \
+            (static_cast<Tag>(*tag)     != static_cast<Tag>(expected)))                      \
+	{                                                                                    \
 		PRINT_WHERE;                                                                 \
 		fprintf(stderr, "stream::recv() tag received %d, but expected %d (%s)\n",    \
-			*tag, expected, #expected);                                              \
-	}                                                                                \
+			*tag, expected, #expected);                                          \
+	}                                                                                    \
 }
 
 
 /** 
  * Receives from any stream of the network 
  */
-#define MRN_NETWORK_RECV(net, tag, data, expected, stream, blocking)                 \
-{                                                                                    \
-	int rc;                                                                          \
-	rc = NETWORK_recv(net, tag, data, stream, blocking);                             \
-	if (rc == -1) {                                                                  \
+#define MRN_NETWORK_RECV(net, tag, data, expected, stream, blocking)                         \
+{                                                                                            \
+	int rc;                                                                              \
+	rc = NETWORK_recv(net, tag, data, stream, blocking);                                 \
+	if (rc == -1) {                                                                      \
 		PRINT_WHERE;                                                                 \
 		fprintf(stderr, "network::recv() failed.\n");                                \
 		exit(1);                                                                     \
-	}                                                                                \
-	if ((expected != TAG_ANY) && (*tag != expected)) {                               \
+	}                                                                                    \
+	if ((static_cast<Tag>(expected) != static_cast<Tag>(TAG_ANY)) &&                     \
+            (static_cast<Tag>(*tag)     != static_cast<Tag>(expected))) {                    \
 		PRINT_WHERE;                                                                 \
 		fprintf(stderr, "network::recv() tag received %d, but expected %d (%s)\n",   \
-			*tag, expected, #expected);                                              \
-	}                                                                                \
+			*tag, expected, #expected);                                          \
+	}                                                                                    \
 }
 
 
 /** 
  * Sends message and forces stream to be flushed 
  */
-#define MRN_STREAM_SEND(stream, tag, format, args...)                                \
-{                                                                                    \
-	int rc;                                                                          \
-	rc = STREAM_send(stream, tag, format, ## args);                                  \
-	if (rc == -1) {                                                                  \
+#define MRN_STREAM_SEND(stream, tag, format, args...)                                        \
+{                                                                                            \
+	int rc;                                                                              \
+	rc = STREAM_send(stream, tag, format, ## args);                                      \
+	if (rc == -1) {                                                                      \
 		PRINT_WHERE;                                                                 \
 		fprintf(stderr, "stream::send(%s, \"%s\") failed (stream_id=%d, tag=%d).\n", \
-			#tag, format, STREAM_get_Id(stream), tag);                               \
+			#tag, format, STREAM_get_Id(stream), tag);                           \
 		exit(1);                                                                     \
-	}                                                                                \
-	else {                                                                           \
+	}                                                                                    \
+	else {                                                                               \
 		rc = STREAM_flush(stream);                                                   \
 		if (rc == -1) {                                                              \
-			PRINT_WHERE;                                                             \
-			fprintf(stderr, "stream::flush() failed (stream_id=%d).\n",              \
-				STREAM_get_Id(stream));                                              \
-			exit(1);                                                                 \
+			PRINT_WHERE;                                                         \
+			fprintf(stderr, "stream::flush() failed (stream_id=%d).\n",          \
+				STREAM_get_Id(stream));                                      \
+			exit(1);                                                             \
 		}                                                                            \
-	}                                                                                \
+	}                                                                                    \
 }
 
 #endif /* __MRNET_WRAPPERS_H__ */

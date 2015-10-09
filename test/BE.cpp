@@ -1,13 +1,15 @@
 #include "BackEnd.h"
 #include "Ping_BE.h"
 
+using namespace Synapse;
+
 int main(int argc, char *argv[])
 {
    /* Start the back-end side of the network */
    BackEnd *BE = new BackEnd();
    BE->Init(argc, argv);
 
-   /* Load the protocols the network understand */
+   /* Load the protocols the network understands */
    BackProtocol *prot = new Ping();
    BE->LoadProtocol(prot);
 

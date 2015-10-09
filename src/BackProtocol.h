@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -25,6 +25,8 @@
 
 #include "Protocol.h"
 
+namespace Synapse {
+
 class BackProtocol : public Protocol
 {
    public:
@@ -35,6 +37,8 @@ class BackProtocol : public Protocol
    protected:
       int AnnounceStreams();
 };
+
+} /* namespace Synapse */
 
 #endif /* __BE_PROTOCOL_H__ */
 

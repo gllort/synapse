@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source @sub_SYNAPSE_HOME@/etc/sourceme.sh
+
+@sub_SYNAPSE_HOME@/example/test_FE

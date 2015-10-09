@@ -6,7 +6,7 @@
 #########################
 
 # Initialize autoconf & define package name, version and bug-report address 
-AC_INIT(MRNetApp Library, 1.0.4, tools@bsc.es)
+AC_INIT(Synapse library, 2.0.0, tools@bsc.es)
 
 # GNU Autotools intermediate files are stored in the following directory
 AC_CONFIG_AUX_DIR(config)
@@ -62,6 +62,6 @@ fi
 AC_C_CONST
 AC_TYPE_SIZE_T
 
-AC_CONFIG_FILES([Makefile src/Makefile scripts/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile scripts/Makefile test/Makefile doc/Makefile])
 
 AC_OUTPUT

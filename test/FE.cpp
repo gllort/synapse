@@ -2,6 +2,7 @@
 #include "FrontEnd.h"
 #include "Ping_FE.h"
 
+using namespace Synapse;
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +10,7 @@ int main(int argc, char *argv[])
    FrontEnd *FE = new FrontEnd();
    FE->Init("topology_1x4.txt", "./test_BE", NULL);
 
-   /* Load the protocols the network understand */
+   /* Load the protocols the network understands */
    FrontProtocol *prot = new Ping();
    FE->LoadProtocol( prot )  ;
 

@@ -1,11 +1,10 @@
 #!/bin/bash
 
-export MRNAPP_HOME=@sub_MRNAPP_HOME@
-export MRNETAPP_HOME=@sub_MRNAPP_HOME@
-export MRNAPP_FILTER_PATH=@sub_MRNAPP_HOME@/lib
+export SYNAPSE_HOME=@sub_SYNAPSE_HOME@
+export SYNAPSE_FILTER_PATH=@sub_SYNAPSE_HOME@/lib
 export MRNET_HOME=@sub_MRNET_HOME@
 export MRNET_COMM_PATH=${MRNET_HOME}/bin/mrnet_commnode
 export MRNET_TOPGEN=${MRNET_HOME}/bin/mrnet_topgen
 export XPLAT_RESOLVE_HOSTS=1
-export LD_LIBRARY_PATH=${MRNETAPP_HOME}/lib:${MRNET_HOME}/lib:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=${SYNAPSE_HOME}/lib:${MRNET_HOME}/lib:${LD_LIBRARY_PATH}
 

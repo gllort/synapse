@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -27,7 +27,11 @@
 #include "PendingConnections.h"
 #include <sstream>
 
-using namespace std;
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::stringstream;
+using namespace Synapse;
 
 /**
  * BackEnd constructor.
@@ -105,20 +109,20 @@ int BackEnd::Init (int wRank, char *parHostname, int parPort, int parRank)
 
 
 /**
- * Reads the connection file from the environment variable MRNAPP_BE_CONNECTIONS and starts the network.
+ * Reads the connection file from the environment variable SYNAPSE_BE_CONNECTIONS and starts the network.
  * @param wRank Backend world rank.
  * @return 0 if the MRNet starts successfully; -1 otherwise.
  */
 int BackEnd::Init (int wRank)
 {
-   char *env_MRNAPP_BE_CONNECTIONS = getenv("MRNAPP_BE_CONNECTIONS");
-   if (env_MRNAPP_BE_CONNECTIONS == NULL)
+   char *env_SYNAPSE_BE_CONNECTIONS = getenv("SYNAPSE_BE_CONNECTIONS");
+   if (env_SYNAPSE_BE_CONNECTIONS == NULL)
    {
-      cerr << "[BE " << wRank << "] ERROR: MRNAPP_BE_CONNECTIONS environment variable is not defined!" << endl;
+      cerr << "[BE " << wRank << "] ERROR: SYNAPSE_BE_CONNECTIONS environment variable is not defined!" << endl;
       cerr << "[BE " << wRank << "] Make it point to the back-ends connection file." << endl;
       return -1;
    }
-   return Init(wRank, ((const char *)env_MRNAPP_BE_CONNECTIONS));
+   return Init(wRank, ((const char *)env_SYNAPSE_BE_CONNECTIONS));
 }
 
 

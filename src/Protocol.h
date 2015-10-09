@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -27,7 +27,10 @@
 #include <string>
 #include "MRNet_wrappers.h"
 
-using namespace std;
+using std::queue;
+using std::string;
+
+namespace Synapse {
 
 class MRNetApp;
 
@@ -56,5 +59,7 @@ class Protocol
 
       MRNetApp *mrnApp;
 };
+
+} /* namespace Synapse */
 
 #endif /* __PROTOCOL_H__ */

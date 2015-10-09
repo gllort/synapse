@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -32,14 +32,14 @@
 /**
  * List here all tags that can be used to send MRNet messages 
  */
-enum 
+typedef enum 
 {
    TAG_EXIT=FirstApplicationTag,
    TAG_STREAM,
    TAG_PROT_ID,
    TAG_ACK,
    TAG_ANY
-};
+} Tag;
 
 #define FirstProtocolTag TAG_ANY+1
 

@@ -2,7 +2,7 @@
 #include "Ping_BE.h"
 
 /**
- * The streams created in the front-end are received here, in the same order that were created.
+ * The streams created in the front-end are received here when Register_Streams() is called, in the same order that were created.
  */
 void Ping::Setup()
 {

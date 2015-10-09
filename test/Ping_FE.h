@@ -4,6 +4,8 @@
 #include "FrontProtocol.h"
 #include "tags.h"
 
+using namespace Synapse;
+
 class Ping : public FrontProtocol
 {
    public:

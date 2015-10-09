@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -25,6 +25,10 @@
 
 #include "MRNetApp.h"
 
+using std::string;
+
+namespace Synapse {
+
 typedef void (*callback_function)(string, Protocol *); 
 
 class BackEnd : public MRNetApp
@@ -49,5 +53,7 @@ class BackEnd : public MRNetApp
       NETWORK * Connect(int wRank, char *parHostname, char *parPort, char *parRank);
       int       getParentInfo(const char *file, int rank, char *phost, char *pport, char *prank);
 };
+
+} /* namespace Synapse */
 
 #endif /* __BACKEND_H__ */

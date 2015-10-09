@@ -1,14 +1,15 @@
 
-MRNAPP_CONFIG = mrnapp-config
-SOURCEME_SH   = sourceme.sh
-MRNRUN        = mrnrun
+SYNAPSE_CONFIG = synapse-config
+SOURCEME_SH    = sourceme.sh
+MRNRUN         = mrnrun
 
-EXTRA_DIST = $(MRNAPP_CONFIG).in $(SOURCEME_SH).in $(MRNRUN).in 
+EXTRA_DIST = $(SYNAPSE_CONFIG).in $(SOURCEME_SH).in $(MRNRUN).in 
 
-bin_SCRIPTS    = $(MRNAPP_CONFIG) $(MRNRUN)
+bin_SCRIPTS    = $(SYNAPSE_CONFIG) 
+#$(MRNRUN) This script was typically used to start the network in Marenostrum, but it is now deprecated
 noinst_SCRIPTS = $(SOURCEME_SH)
 
-$(MRNAPP_CONFIG): $(MRNAPP_CONFIG).in
+$(SYNAPSE_CONFIG): $(SYNAPSE_CONFIG).in
 	cp $^ $@
 	$(top_srcdir)/substitute $(SED) "@sub_PREFIX@" "${prefix}" $@
 	$(top_srcdir)/substitute $(SED) "@sub_MRNET_PREFIX@" "@MRNET_HOME@" $@
@@ -32,14 +33,14 @@ $(MRNRUN): $(MRNRUN).in
 
 $(SOURCEME_SH): $(SOURCEME_SH).in
 	cp $^ $@
-	$(top_srcdir)/substitute $(SED) "@sub_MRNAPP_HOME@" "${prefix}" $@
+	$(top_srcdir)/substitute $(SED) "@sub_SYNAPSE_HOME@" "${prefix}" $@
 	$(top_srcdir)/substitute $(SED) "@sub_MRNET_HOME@" "@MRNET_HOME@" $@
     
 install-data-hook:
-	chmod u+x ${bindir}/$(MRNAPP_CONFIG)
+	chmod u+x ${bindir}/$(SYNAPSE_CONFIG)
 	$(MKDIR_P) $(prefix)/etc
 	cp $(SOURCEME_SH) $(prefix)/etc
 
 clean-local:
-	rm -f $(MRNAPP_CONFIG) $(SOURCEME_SH) $(MRNRUN)
+	rm -f $(SYNAPSE_CONFIG) $(SOURCEME_SH) $(MRNRUN)
 

@@ -3,11 +3,11 @@
 usage()
 {
 	cat <<EOF
-Usage: mrnapp-config [OPTION]
+Usage: synapse-config [OPTION]
 
 Known values for OPTION are:
 
-  --prefix        print libMRNetApp installation directory
+  --prefix        print Synapse installation directory
   --fe-cflags     print pre-processor and compiler flags for the front-end
   --fe-libs       print library linking information for the front-end
   --be-cflags     print pre-processor and compiler flags for the back-ends
@@ -57,11 +57,11 @@ while test $# -gt 0; do
 		;;
 	
 	--fe-libs)
-		echo -L@sub_PREFIX@/lib -lmrnapp_frontend -L@sub_MRNET_LIBSDIR@ @sub_FE_MRNET_LIBS@
+		echo -L@sub_PREFIX@/lib -lsynapse_frontend -L@sub_MRNET_LIBSDIR@ @sub_FE_MRNET_LIBS@
 		;;
 
 	--be-libs)
-		echo -L@sub_PREFIX@/lib -lmrnapp_backend -L@sub_MRNET_LIBSDIR@ @sub_BE_MRNET_LIBS@
+		echo -L@sub_PREFIX@/lib -lsynapse_backend -L@sub_MRNET_LIBSDIR@ @sub_BE_MRNET_LIBS@
 		;;
 
 	--libdir)

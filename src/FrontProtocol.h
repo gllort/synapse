@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -25,6 +25,8 @@
 
 #include "Protocol.h"
 
+namespace Synapse {
+
 class FrontProtocol : public Protocol
 {
    public:
@@ -36,6 +38,8 @@ class FrontProtocol : public Protocol
    protected:
       int AnnounceStreams();
 };
+
+} /* namespace Synapse */
 
 #endif /* __FE_PROTOCOL_H__ */
 

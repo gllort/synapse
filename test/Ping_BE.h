@@ -4,6 +4,8 @@
 #include "BackProtocol.h"
 #include "tags.h"
 
+using namespace Synapse;
+
 class Ping : public BackProtocol
 {
    public:

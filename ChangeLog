@@ -1,12 +1,13 @@
 [+ added, - removed, * changed ]
+   * (09/Oct/2015) Version upgrade to 2.0 and ready for distribution
    * (08/Jan/2015) Added Barrier() call to FrontProtocol and BackProtocol to synchronize FE and BE processes inside a protocol
-   * (04/Dec/2014) Added parameter --mrnet to mrnapp-config to query the installation path for MRNet
+   * (04/Dec/2014) Added parameter --mrnet to synapse-config to query the installation path for MRNet
                    Updated obsolete macro AM_CONFIG_HEADER to AC_CONFIG_HEADERS
                    Version upgrade to 1.0.3
    * (22/Sep/2014) Version upgrade to 1.0.2
    * (22/Sep/2014) Added configuration error when MRNet is not found in the system
    * (22/Sep/2014) Added 'boost.m4' to check the existence of Boost Shared Ptr header
-   * (22/Sep/2014) Added '--libdir' and '--libtool-rpath' to the mrnapp-config script. 
+   * (22/Sep/2014) Added '--libdir' and '--libtool-rpath' to the synapse-config script. 
    * (22/Sep/2014) Added 'BOOST_CPPFLAGS' to 'libBackEnd' and 'libFrontEnd' CXXFLAGS.
    * (15/Sep/2014) Fixed MRNet include check in the building system	
    * (06/Sep/2013) Fixed missing files in the distribution
@@ -27,12 +28,12 @@
    * (12/Jun/2012) export XPLAT_RESOLVE_HOSTS=1 by default to avoid connection problems in the CPs
    * (12/Jun/2012) Changed the paths to the MRNet includes for compatibility with version 4
    * (27/Feb/2012) Added query function to get the Network object from a loaded Protocol
-   * (02/Feb/2012) Added --rpath option in mrnapp-config script 
+   * (02/Feb/2012) Added --rpath option in synapse-config script 
    * (30/Nov/2011) Added some files (scripts / tests) to EXTRA_DIST
    * (30/Nov/2011) Fixed bug announcing the registered streams to the back-ends
    * (30/Nov/2011) Fixed bug in the topology generation in the mrnrun script
    * (22/Nov/2011) Added Init routines both in the FE and BE API's that read parameters from environment variables
    * (22/Nov/2011) Improved script 'mrnrun'
    + (14/Nov/2011) New scripts mrnrun (launch apps) and sourceme.sh (set environment) 
-   + (08/Nov/2011) New script mrnapp-config to query configure options (cflags, libs, etc.)
-   + (25/Oct/2011) Initial commit of the libMRNetApp package.
+   + (08/Nov/2011) New script synapse-config to query configure options (cflags, libs, etc.)
+   + (25/Oct/2011) Initial commit of the Synapse package.

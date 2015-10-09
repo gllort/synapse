@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -29,8 +29,12 @@
 #include "FrontProtocol.h"
 #include "PendingConnections.h"
 
-using namespace std;
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::ifstream;
 using namespace MRN;
+using namespace Synapse;
 
 
 /**
@@ -139,21 +143,21 @@ int FrontEnd::Init(const char *TopologyFile, const char *BackendExe, const char 
 
 
 /** 
- * Normal instantiation that reads the topology from the environment variable MRNAPP_TOPOLOGY. 
+ * Normal instantiation that reads the topology from the environment variable SYNAPSE_TOPOLOGY. 
  * @param BackendExe The backend executable to start.
  * @param BackendArgs The arguments of the backend.
  * @return 0 if the MRNet starts successfully; -1 otherwise.
  */
 int FrontEnd::Init(const char *BackendExe, const char **BackendArgs)
 {
-   char *env_MRNAPP_TOPOLOGY = getenv("MRNAPP_TOPOLOGY");
-   if (env_MRNAPP_TOPOLOGY == NULL)
+   char *env_SYNAPSE_TOPOLOGY = getenv("SYNAPSE_TOPOLOGY");
+   if (env_SYNAPSE_TOPOLOGY == NULL)
    {
-      cerr << "[FE] ERROR: MRNAPP_TOPOLOGY environment variable is not defined!" << endl; 
+      cerr << "[FE] ERROR: SYNAPSE_TOPOLOGY environment variable is not defined!" << endl; 
       cerr << "[FE] Make it point to the MRNet topology file." << endl;
       return -1;
    }
-   return Init(((const char *)env_MRNAPP_TOPOLOGY), BackendExe, BackendArgs);
+   return Init(((const char *)env_SYNAPSE_TOPOLOGY), BackendExe, BackendArgs);
 }
 
 
@@ -235,8 +239,8 @@ int FrontEnd::Init(const char *TopologyFile, unsigned int numBackends, const cha
 }
 
 /**
- * No back-ends instantiation that reads the topology from the environment variable MRNAPP_TOPOLOGY,
- * the number of back-ends from MRNAPP_NUM_BE, and the connections file from MRNAPP_BE_CONNECTIONS.
+ * No back-ends instantiation that reads the topology from the environment variable SYNAPSE_TOPOLOGY,
+ * the number of back-ends from SYNAPSE_NUM_BE, and the connections file from SYNAPSE_BE_CONNECTIONS.
  *
  * @param wait_for_BEs    Optional argument set to true by default. In this case,
  *                        the front-end waits for the back-ends to connect and 
@@ -247,28 +251,28 @@ int FrontEnd::Init(const char *TopologyFile, unsigned int numBackends, const cha
  */
 int FrontEnd::Init(bool wait_for_BEs)
 {
-   char *env_MRNAPP_TOPOLOGY = getenv("MRNAPP_TOPOLOGY");
-   if (env_MRNAPP_TOPOLOGY == NULL)
+   char *env_SYNAPSE_TOPOLOGY = getenv("SYNAPSE_TOPOLOGY");
+   if (env_SYNAPSE_TOPOLOGY == NULL)
    {
-      cerr << "[FE] ERROR: MRNAPP_TOPOLOGY environment variable is not defined!" << endl;
+      cerr << "[FE] ERROR: SYNAPSE_TOPOLOGY environment variable is not defined!" << endl;
       cerr << "[FE] Make it point to the MRNet topology file." << endl;
       return -1;
    }
-   char *env_MRNAPP_NUM_BE = getenv("MRNAPP_NUM_BE");
-   if (env_MRNAPP_NUM_BE == NULL)
+   char *env_SYNAPSE_NUM_BE = getenv("SYNAPSE_NUM_BE");
+   if (env_SYNAPSE_NUM_BE == NULL)
    {
-      cerr << "[FE] ERROR: MRNAPP_NUM_BE environment variable is not defined!" << endl;
+      cerr << "[FE] ERROR: SYNAPSE_NUM_BE environment variable is not defined!" << endl;
       cerr << "[FE] Specify how many back-ends are you going to launch." << endl;
       return -1;
    }
-   char *env_MRNAPP_BE_CONNECTIONS = getenv("MRNAPP_BE_CONNECTIONS");
-   if (env_MRNAPP_BE_CONNECTIONS == NULL)
+   char *env_SYNAPSE_BE_CONNECTIONS = getenv("SYNAPSE_BE_CONNECTIONS");
+   if (env_SYNAPSE_BE_CONNECTIONS == NULL)
    {
-      cerr << "[FE] ERROR: MRNAPP_BE_CONNECTIONS environment variable is not defined!" << endl;
+      cerr << "[FE] ERROR: SYNAPSE_BE_CONNECTIONS environment variable is not defined!" << endl;
       cerr << "[FE] Make it point to the back-ends connection file." << endl;
       return -1;
    }
-   return Init(((const char *)env_MRNAPP_TOPOLOGY), atoi(env_MRNAPP_NUM_BE), ((const char *)env_MRNAPP_BE_CONNECTIONS), wait_for_BEs);
+   return Init(((const char *)env_SYNAPSE_TOPOLOGY), atoi(env_SYNAPSE_NUM_BE), ((const char *)env_SYNAPSE_BE_CONNECTIONS), wait_for_BEs);
 }
 
 
@@ -467,7 +471,7 @@ int split(const std::string &s, char delim, std::vector<std::string> &tokens)
 
 /**
  * Looks for the filter shared object specified by filter_name (appending .so) 
- * in the paths specified with the environment variable MRNAPP_FILTER_PATH. If the
+ * in the paths specified with the environment variable SYNAPSE_FILTER_PATH. If the
  * filter is found, it is loaded into the network.
  * @param filter_name Name of the filter shared object.
  * @return the filter id; or -1 if can not be found or loaded. 
@@ -477,7 +481,7 @@ int FrontEnd::LoadFilter(string filter_name)
    if (filter_name != "")
    {
       string paths(".");
-      char  *env_filter_path = getenv("MRNAPP_FILTER_PATH");
+      char  *env_filter_path = getenv("SYNAPSE_FILTER_PATH");
 
       if (env_filter_path != NULL) paths += ":" + string(env_filter_path);
 

@@ -1,0 +1,21 @@
+
+SYNAPSE_CONFIG = @sub_SYNAPSE_HOME@/bin/synapse-config
+
+CXX         = g++
+CXXFLAGS    = -g 
+FE_CXXFLAGS = `${SYNAPSE_CONFIG} --fe-cflags`
+BE_CXXFLAGS = `${SYNAPSE_CONFIG} --be-cflags`
+FE_LIBS     = `${SYNAPSE_CONFIG} --fe-libs`
+BE_LIBS     = `${SYNAPSE_CONFIG} --be-libs`
+
+all: test_FE test_BE
+
+test_FE: FE.cpp Ping_FE.cpp
+	$(CXX) $(CXXFLAGS) $(FE_CXXFLAGS) $^ -o $@ $(FE_LIBS)
+
+test_BE: BE.cpp Ping_BE.cpp
+	$(CXX) $(CXXFLAGS) $(BE_CXXFLAGS) $^ -o $@ $(BE_LIBS)
+
+clean:
+	rm test_FE test_BE *.o
+

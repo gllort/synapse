@@ -219,10 +219,10 @@ else
 fi
 
 ### Run the front-end
-export MRNAPP_TOPOLOGY=${TOPOLOGY}
-export MRNAPP_NUM_BE=${NUM_BACKENDS}
-export MRNAPP_BE_CONNECTIONS=attach_BE_connections.tmp
-rel2abs ${MRNAPP_BE_CONNECTIONS} MRNAPP_BE_CONNECTIONS
+export SYNAPSE_TOPOLOGY=${TOPOLOGY}
+export SYNAPSE_NUM_BE=${NUM_BACKENDS}
+export SYNAPSE_BE_CONNECTIONS=attach_BE_connections.tmp
+rel2abs ${SYNAPSE_BE_CONNECTIONS} SYNAPSE_BE_CONNECTIONS
 
 echo "[`basename $0`] Running front-end..."
 echo "> ${FRONTEND} ${FRONTEND_ARGS}"
@@ -234,19 +234,19 @@ fi
 
 ### Run the back-ends
 if [ ${MPI_BACKENDS} == 1 ]; then
-  echo "[`basename $0`] Back-ends connection file: ${MRNAPP_BE_CONNECTIONS}"
+  echo "[`basename $0`] Back-ends connection file: ${SYNAPSE_BE_CONNECTIONS}"
   ### Wait for the BE connections file to be written
   sleep 3
-  while [ ! -f ${MRNAPP_BE_CONNECTIONS} ] || [ `cat ${MRNAPP_BE_CONNECTIONS} | wc -l` -ne ${MRNAPP_NUM_BE} ] ; do
+  while [ ! -f ${SYNAPSE_BE_CONNECTIONS} ] || [ `cat ${SYNAPSE_BE_CONNECTIONS} | wc -l` -ne ${SYNAPSE_NUM_BE} ] ; do
 	sleep 1
   done
 
   ### Run back-ends on their assigned resources
   echo "[`basename $0`] Running back-ends..."
-  echo "> srun -n ${MRNAPP_NUM_BE} ${BACKEND} ${BACKEND_ARGS}"
-  time srun -n ${MRNAPP_NUM_BE} ${BACKEND} ${BACKEND_ARGS}
+  echo "> srun -n ${SYNAPSE_NUM_BE} ${BACKEND} ${BACKEND_ARGS}"
+  time srun -n ${SYNAPSE_NUM_BE} ${BACKEND} ${BACKEND_ARGS}
 fi
 
 ### Clean resources lists and stuff
-rm -f ${RS_MLIST} ${CP_MLIST} ${BE_MLIST} ${TOPOLOGY} ${MRNAPP_BE_CONNECTIONS}
+rm -f ${RS_MLIST} ${CP_MLIST} ${BE_MLIST} ${TOPOLOGY} ${SYNAPSE_BE_CONNECTIONS}
 rmdir ${LOGDIR} 

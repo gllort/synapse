@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                             Synapse library                               *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -36,6 +36,8 @@
 using std::map;
 using std::string;
 
+namespace Synapse {
+
 class Protocol;
 
 class MRNetApp 
@@ -64,5 +66,7 @@ class MRNetApp
       map<string, Protocol*> loadedProtocols; /* Mapping of user-defined protocols that are loaded 
                                                  into the FE/BE, indexed by their ID */
 };
+
+} /* namespace Synapse */
 
 #endif /* __MRNET_APP_H__ */

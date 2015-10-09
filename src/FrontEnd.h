@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *                             MRNetApp library                              *
+ *                              Synapse library                              *
  *               Simple interface to create MRNet applications               *
  *****************************************************************************
  *     ___          This library is free software; you can redistribute it   *
@@ -32,6 +32,8 @@
 using std::string;
 using std::vector;
 
+namespace Synapse {
+
 class FrontEnd : public MRNetApp
 {
    public:
@@ -62,6 +64,8 @@ class FrontEnd : public MRNetApp
       int CommonInit();
       int WaitForBackends(unsigned int numBackends); //DEAD_CODE , const char *ConnectionsFile);
 };
+
+} /* namespace Synapse */
 
 #endif /* __FRONTEND_H__ */
 

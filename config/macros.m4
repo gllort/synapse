@@ -32,14 +32,14 @@ AC_DEFUN([AX_FIND_INSTALLATION],
 
 	dnl Search for home directory
 	AC_MSG_CHECKING([for $1 installation])
-    for home_dir in [$2 "not found"]; do
-        if test -d "$home_dir/$BITS" ; then
-            home_dir="$home_dir/$BITS"
-            break
-        elif test -d "$home_dir" ; then
-            break
-        fi
-    done
+	for home_dir in [$2 "not found"]; do
+		if test -d "$home_dir/$BITS" ; then
+			home_dir="$home_dir/$BITS"
+			break
+		elif test -d "$home_dir" ; then
+			break
+		fi
+	done
 	AC_MSG_RESULT([$home_dir])
 	$1_HOME="$home_dir"
 	if test "$$1_HOME" = "not found" ; then
@@ -294,13 +294,19 @@ AC_DEFUN([AX_PROG_MRNET],
 
 	if test "$MRNET_INSTALLED" = "yes" ; then
 
-dnl		dnl Begin hack
-dnl		MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I${MRNET_HOME}/src/src -Dos_linux"
-dnl		AC_SUBST(MRNET_CXXFLAGS)
-dnl		dnl End hack
+		dnl Begin hack -- these includes should be installed under include/ not lib/
+		xplat_config_h=`find ${MRNET_HOME}/lib -name xplat_config.h`
+                mrnet_config_h=`find ${MRNET_HOME}/lib -name mrnet_config.h`
+		if test -f ${xplat_config_h} ; then
+			MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I`dirname ${xplat_config_h}`"
+		fi
+		if test -f ${mrnet_config_h} ; then
+			MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I`dirname ${mrnet_config_h}`"
+		fi
+		dnl End hack
 
-		MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I${MRNET_INCLUDES}/mrnet -I${MRNET_LIBSDIR}/mrnet-4.0.0/include -I${MRNET_LIBSDIR}/xplat-4.0.0/include"
-		MRNET_CXXFLAGS="${MRNET_CXXFLAGS} ${BOOST_CPPFLAGS}"
+		MRNET_CXXFLAGS="${MRNET_CXXFLAGS} -I${MRNET_INCLUDES}/mrnet"
+		MRNET_CPPFLAGS="${MRNET_CXXFLAGS}"
 
 		AC_MSG_CHECKING([for lightweight libraries for the back-ends])
 		AC_ARG_WITH(lightweight,
