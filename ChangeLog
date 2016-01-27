@@ -1,4 +1,5 @@
 [+ added, - removed, * changed ]
+   * (27/Jan/2016) Upgraded boost.m4 to latest version.
    * (09/Oct/2015) Version upgrade to 2.0 and ready for distribution
    * (08/Jan/2015) Added Barrier() call to FrontProtocol and BackProtocol to synchronize FE and BE processes inside a protocol
    * (04/Dec/2014) Added parameter --mrnet to synapse-config to query the installation path for MRNet
